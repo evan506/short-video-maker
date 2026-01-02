@@ -213,6 +213,8 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 
 **Priority**: P2 (Required for real-world usage)
 
+**Phase 1 MVP Note**: Phase 1 MVP excludes deletion (T060), non-draft status indicators (T065), and deletion confirmation (T069). These are deferred to Phase 2/1.1. Optional deferral: T068 (title auto-generation) if it slows down implementation.
+
 **Independent Test**: User creates project, generates script, creates scenes, closes browser, reopens, navigates to dashboard, clicks project, verifies all data loads correctly
 
 **Included Subtasks**:
@@ -220,16 +222,16 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 - [ ] T057: Create `GET /api/v1/editor/projects` endpoint (list user's projects)
 - [ ] T058: Create `GET /api/v1/editor/projects/:projectId` endpoint (load single project)
 - [ ] T059: Create `PATCH /api/v1/editor/projects/:projectId` endpoint (update project metadata)
-- [ ] T060: Create `DELETE /api/v1/editor/projects/:projectId` endpoint (delete project)
+- [ ] T060: Create `DELETE /api/v1/editor/projects/:projectId` endpoint (delete project) **(Deferred to Phase 2/1.1)**
 - [ ] T061: Create `src/ui/pages/EditorNew.tsx` component (create project page)
 - [ ] T062: Create `src/ui/pages/EditorProject.tsx` component (edit project page)
 - [ ] T063: Create `src/ui/components/editor/ProjectDashboard.tsx` component
 - [ ] T064: Implement project list view with sorting by "last modified"
-- [ ] T065: Implement project status indicators (draft/rendering/done/failed)
+- [ ] T065: Implement project status indicators (draft/rendering/done/failed) **(Deferred to Phase 2/1.1)**
 - [ ] T066: Implement project reload from dashboard (navigation to `/editor/:projectId`)
 - [ ] T067: Add "New Project" button in dashboard
-- [ ] T068: Implement project title auto-generation from topic
-- [ ] T069: Add project deletion confirmation dialog
+- [ ] T068: Implement project title auto-generation from topic **(Optional - defer to Phase 2/1.1 if it slows down)**
+- [ ] T069: Add project deletion confirmation dialog **(Deferred to Phase 2/1.1)**
 - [ ] T070: Create `src/ui/hooks/use-project.ts` for project CRUD operations
 
 **Implementation Sketch**:

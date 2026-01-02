@@ -239,6 +239,8 @@ KO VIEW (Non-SoT)
 
 **우선순위**: P2 (실제 사용 환경에 필수)
 
+**1단계 MVP 참고사항**: 1단계 MVP는 프로젝트 삭제(T060), 비초안 상태 표시기(T065), 삭제 확인 대화상자(T069)를 제외합니다. 이들은 2단계/1.1단계로 연기됩니다. 선택적 연기: 구현 속도를 늦출 경우 T068(제목 자동 생성)도 연기 가능합니다.
+
 **독립 테스트**: 사용자가 프로젝트를 생성하고, 스크립트를 생성하고, 장면을 만들고, 브라우저를 닫고, 다시 열고, 대시보드로 이동하고, 프로젝트를 클릭하여 모든 데이터가 올바르게 로드되는지 확인
 
 **포함된 하위 작업**:
@@ -247,16 +249,16 @@ KO VIEW (Non-SoT)
 - [ ] T057: `GET /api/v1/editor/projects` 엔드포인트 생성 (사용자 프로젝트 목록)
 - [ ] T058: `GET /api/v1/editor/projects/:projectId` 엔드포인트 생성 (단일 프로젝트 로드)
 - [ ] T059: `PATCH /api/v1/editor/projects/:projectId` 엔드포인트 생성 (프로젝트 메타데이터 업데이트)
-- [ ] T060: `DELETE /api/v1/editor/projects/:projectId` 엔드포인트 생성 (프로젝트 삭제)
+- [ ] T060: `DELETE /api/v1/editor/projects/:projectId` 엔드포인트 생성 (프로젝트 삭제) **(2단계/1.1단계로 연기)**
 - [ ] T061: `src/ui/pages/EditorNew.tsx` 컴포넌트 생성 (프로젝트 생성 페이지)
 - [ ] T062: `src/ui/pages/EditorProject.tsx` 컴포넌트 생성 (프로젝트 편집 페이지)
 - [ ] T063: `src/ui/components/editor/ProjectDashboard.tsx` 컴포넌트 생성
 - [ ] T064: "최종 수정(last modified)" 정렬 기능이 있는 프로젝트 목록 뷰 구현
-- [ ] T065: 프로젝트 상태 표시기 구현 (draft/rendering/done/failed)
+- [ ] T065: 프로젝트 상태 표시기 구현 (draft/rendering/done/failed) **(2단계/1.1단계로 연기)**
 - [ ] T066: 대시보드에서 프로젝트 다시 불러오기 구현 (`/editor/:projectId`로 이동)
 - [ ] T067: 대시보드에 "New Project" 버튼 추가
-- [ ] T068: 주제에서 프로젝트 제목 자동 생성 구현
-- [ ] T069: 프로젝트 삭제 확인 대화상자 추가
+- [ ] T068: 주제에서 프로젝트 제목 자동 생성 구현 **(선택사항 - 구현 속도를 늦출 경우 2단계/1.1단계로 연기)**
+- [ ] T069: 프로젝트 삭제 확인 대화상자 추가 **(2단계/1.1단계로 연기)**
 - [ ] T070: 프로젝트 CRUD 작업을 위한 `src/ui/hooks/use-project.ts` 생성
 
 **구현 스케치**:
