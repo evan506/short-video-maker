@@ -158,7 +158,7 @@ The system defines state models for tracking async operations and recovery workf
 - **FR-004**: System MUST provide video type preset options: Explainer, Marketing, Tutorial, Recipe, Story
 - **FR-005**: System MUST generate a narration script from topic using LLM service
 - **FR-006**: System MUST save generated script as version 1 with source="llm"
-- **FR-007**: System MUST display generation progress indicator (no specific time guarantee, but show "working" state)
+- **FR-007**: System MUST display generation progress indicator. Script generation MUST enforce a 60-second server-side timeout (FR-008). On timeout, return a clear error and provide a retry action.
 - **FR-008**: System MUST handle generation timeout at 60 seconds with user-friendly error message
 - **FR-009**: System MUST provide "Retry" button on generation failure
 

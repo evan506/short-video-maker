@@ -49,7 +49,7 @@
 **Project Type**: Web application (monorepo with shared TypeScript)
 
 **Performance Goals**:
-- Script generation: "Fast perceived response" (LLM-dependent, no SLA)
+- Script generation: Hard timeout 60s (FR-008). Record latency metrics (p50/p90) for script generation and quick-edits; UI must show immediate loading feedback
 - Scene generation: < 5 seconds for typical 60-second video
 - API response: < 500ms for CRUD operations
 - Page load: < 2 seconds for editor pages
@@ -120,6 +120,7 @@
 - Data models designed to support future async jobs
 
 **Implementation Notes**:
+- FR-056–FR-063 are documentation-only state models for Phase 2; Phase 1 implements no job queue/worker infrastructure.
 - `render_jobs` and `job_steps` tables designed but NOT created in Phase 1
 - State transition rules documented in spec (queued → running → succeeded/failed/canceled)
 - Phase 1 implementation focuses on script/storyboard editing (no rendering yet)
