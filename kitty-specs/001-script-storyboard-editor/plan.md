@@ -323,6 +323,10 @@ tests/
 - Database: Supabase migrations in new `supabase/` directory
 - Tests: Mirror source structure under `tests/`
 
+**Service Responsibilities**
+- `llm-service.ts`: OpenRouter API calls only (timeout/retry logic). No database operations or versioning logic.
+- `script-service.ts`: Script CRUD operations + versioning logic. Calls `llm-service.ts` to generate new script versions.
+
 **Integration Points**:
 - Extend `src/server/routers/rest.ts` with new `/api/v1/*` endpoints (clean v1 namespace)
 - New routes registered in `src/server/server.ts`

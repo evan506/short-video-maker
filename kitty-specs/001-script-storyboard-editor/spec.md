@@ -141,8 +141,10 @@ The system defines state models for tracking async operations and recovery workf
 - What happens when a project is created but script generation is never started?
   - Project remains in status="draft" with script_version=null, appears in project list as "Incomplete - no script generated"
 
-- What happens when scene duration is manually set to 0 or negative?
-  - System validates input and shows error "Duration must be at least 1 second" and prevents save
+- What happens when scene duration is manually set to 0, negative, or exceeds the maximum?
+  - System validates input and shows error "Duration must be between 1 second and [max_duration] seconds" and prevents save, where [max_duration] = min(60 seconds, project.target_duration_seconds)
+- What happens when the sum of all scene durations exceeds project.target_duration_seconds?
+  - System blocks save and displays validation error "Total scene duration (X seconds) exceeds target duration (Y seconds). Adjust individual scene durations to fit within target."
 
 - What happens when all scenes are deleted manually (if that action exists)?
   - System prevents deletion of last scene, showing error "At least one scene is required" or offers "Regenerate all scenes" button
@@ -194,7 +196,7 @@ The system defines state models for tracking async operations and recovery workf
 **Scene Editing**
 - **FR-035**: System MUST display scene cards in grid or list view showing: thumbnail placeholder, narration text, draft duration, primary keyword, subtitle preset
 - **FR-036**: System MUST allow clicking scene card to open edit panel
-- **FR-037**: System MUST allow editing draft duration for each scene (minimum 1 second, no maximum specified)
+- **FR-037**: System MUST allow editing draft duration for each scene within the range of 1 second to min(60 seconds, project.target_duration_seconds), and MUST block save if the sum of all scene durations exceeds project.target_duration_seconds
 - **FR-038**: System MUST allow editing primary keyword for each scene
 - **FR-039**: System MUST provide subtitle preset options: Minimal, Highlight, Karaoke (at least 3 presets)
 - **FR-040**: System MUST allow changing subtitle preset per scene
