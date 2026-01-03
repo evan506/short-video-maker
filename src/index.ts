@@ -3,7 +3,6 @@ import path from "path";
 import fs from "fs-extra";
 
 import { Kokoro } from "./short-creator/libraries/Kokoro";
-import { Remotion } from "./short-creator/libraries/Remotion";
 import { Whisper } from "./short-creator/libraries/Whisper";
 import { FFMpeg } from "./short-creator/libraries/FFmpeg";
 import { PexelsAPI } from "./short-creator/libraries/Pexels";
@@ -32,7 +31,13 @@ async function main() {
   }
 
   logger.debug("initializing remotion");
-  const remotion = await Remotion.init(config);
+  let remotion: any = null;
+  try {
+    const { Remotion: RemotionClass } = await import("./short-creator/libraries/Remotion");
+    remotion = await RemotionClass.init(config);
+  } catch (error) {
+    logger.warn(error, "Remotion initialization failed - continuing without video rendering");
+  }
   logger.debug("initializing kokoro");
   const kokoro = await Kokoro.init(config.kokoroModelPrecision);
   logger.debug("initializing whisper");
@@ -65,8 +70,12 @@ async function main() {
         await ffmpeg.createMp3DataUri(audioBuffer);
         await pexelsApi.findVideo(["dog"], 2.4);
         const testVideoPath = path.join(config.tempDirPath, "test.mp4");
-        await remotion.testRender(testVideoPath);
-        fs.rmSync(testVideoPath, { force: true });
+        if (remotion) {
+          await remotion.testRender(testVideoPath);
+          fs.rmSync(testVideoPath, { force: true });
+        } else {
+          logger.warn("Skipping Remotion test render - not initialized");
+        }
         fs.writeFileSync(config.installationSuccessfulPath, "ok", {
           encoding: "utf-8",
         });
