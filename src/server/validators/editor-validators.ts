@@ -18,7 +18,7 @@ export const createProjectSchema = z.object({
   video_type: z.enum(['Explainer', 'Marketing', 'Tutorial', 'Recipe', 'Story'], {
     errorMap: () => ({ message: 'Video type must be one of: Explainer, Marketing, Tutorial, Recipe, Story' })
   }),
-  target_duration: z.enum([15, 30, 60], {
+  target_duration: z.union([z.literal(15), z.literal(30), z.literal(60)], {
     errorMap: () => ({ message: 'Target duration must be one of: 15, 30, 60' })
   }),
 });
@@ -28,7 +28,7 @@ export const updateProjectSchema = z.object({
   topic: z.string().min(10).max(500).optional(),
   platform: z.enum(['shorts', 'tiktok', 'reels']).optional(),
   video_type: z.enum(['Explainer', 'Marketing', 'Tutorial', 'Recipe', 'Story']).optional(),
-  target_duration: z.enum([15, 30, 60]).optional(),
+  target_duration: z.union([z.literal(15), z.literal(30), z.literal(60)]).optional(),
 });
 
 /**
