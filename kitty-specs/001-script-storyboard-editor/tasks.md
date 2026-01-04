@@ -58,6 +58,8 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 
 **Priority**: P1 (Core value proposition #1)
 
+**Phase 1 Scope Note**: This work package implements synchronous LLM APIs. Per FR-007, UI shows loading spinners (not progress bars) during generation. Real-time progress tracking is deferred to Phase 2 with async job queues.
+
 **Independent Test**: User enters topic, generates script in <60s, applies quick-edit (Shorten), and verifies new version created
 
 **Included Subtasks**:
@@ -109,6 +111,8 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 **Goal**: Automatically split scripts into scenes and enable one-time generation with version tracking
 
 **Priority**: P1 (Required for storyboard functionality)
+
+**Phase 1 Scope Note**: This work package implements synchronous scene generation APIs. No async job queues, render_jobs tables, or background workers are created in Phase 1 (those are Phase 2 only per FR-056-FR-063).
 
 **Independent Test**: User generates script, clicks "Go to Storyboard", verifies 10-15 scenes created with proper narration/duration/keywords, reloads page and confirms scenes persist (one-time generation)
 
@@ -173,7 +177,7 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 - [ ] T047: Create `POST /api/v1/editor/projects/:projectId/scenes/reorder` endpoint
 - [ ] T048: Implement duration editing with validation (min 1 second)
 - [ ] T049: Implement keyword editing with visual confirmation (checkmark)
-- [ ] T050: Implement subtitle preset selector (Minimal, Highlight, Karaoke)
+- [ ] T050: Implement subtitle preset selector (Minimal, Highlight, Karaoke). **Note**: Per FR-039, presets are: Minimal (static text at bottom), Highlight (static text with background box), Karaoke (visual-only word-by-word highlighting, functional TTS-sync deferred to Phase 2)
 - [ ] T051: Implement "Apply to all scenes" button for subtitle presets
 - [ ] T052: Implement scene drag-and-drop reordering (@dnd-kit or react-beautiful-dnd)
 - [ ] T053: Add optimistic updates for scene edits (immediate UI feedback)

@@ -16,6 +16,8 @@ history:
 **Priority**: P2 (Core value proposition #2)
 **Estimated Subtasks**: 13
 
+**Subtitle Preset Clarification**: Per FR-039, the three presets are: Minimal (static text at bottom, no background), Highlight (static text with semi-transparent background box), Karaoke (visual-only word-by-word highlighting; functional TTS-synchronized karaoke animation is deferred to Phase 2).
+
 ## Objective
 
 Enable creators to edit individual scene cards (duration, keywords, subtitle presets) and reorder scenes via drag-and-drop with immediate visual feedback and data persistence.

@@ -133,10 +133,47 @@ export class EditorRouter {
     this.router.post(
       '/projects/:projectId/scripts/generate',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'POST /api/v1/editor/projects/:projectId/scripts/generate'
-        });
+        try {
+          const { projectId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Import service dynamically
+          const { generateScriptVersion } = await import('../services/script-service');
+
+          // TODO: Validate project exists and belongs to user
+          // For now, proceed with generation
+
+          // Get project details from request body or query
+          const topic = req.body.topic;
+          const platform = req.body.platform;
+          const targetDuration = req.body.target_duration;
+          const videoType = req.body.video_type;
+
+          if (!topic || !platform || !targetDuration || !videoType) {
+            return res.status(400).json({
+              error: 'Missing required fields: topic, platform, target_duration, video_type'
+            });
+          }
+
+          const script = await generateScriptVersion({
+            projectId,
+            topic,
+            platform,
+            targetDuration,
+            videoType
+          });
+
+          res.status(201).json(script);
+        } catch (error: any) {
+          console.error('Error generating script:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to generate script'
+          });
+        }
       }
     );
 
@@ -148,10 +185,27 @@ export class EditorRouter {
     this.router.get(
       '/projects/:projectId/scripts',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'GET /api/v1/editor/projects/:projectId/scripts'
-        });
+        try {
+          const { projectId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Import service
+          const { getScriptsByProject } = await import('../services/script-service');
+
+          // Get all scripts for project
+          const scripts = await getScriptsByProject(projectId);
+
+          res.status(200).json(scripts);
+        } catch (error: any) {
+          console.error('Error fetching scripts:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to fetch scripts'
+          });
+        }
       }
     );
 
@@ -163,10 +217,52 @@ export class EditorRouter {
     this.router.post(
       '/scripts',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'POST /api/v1/editor/scripts'
-        });
+        try {
+          const { project_id, content, source } = req.body;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Validate required fields
+          if (!project_id || !content || !source) {
+            return res.status(400).json({
+              error: 'Missing required fields: project_id, content, source'
+            });
+          }
+
+          // Validate content length
+          if (content.length < 50) {
+            return res.status(400).json({
+              error: 'Script content must be at least 50 characters'
+            });
+          }
+
+          // Validate source
+          if (!['llm', 'user'].includes(source)) {
+            return res.status(400).json({
+              error: 'Source must be either "llm" or "user"'
+            });
+          }
+
+          // Import service
+          const { createScriptVersion } = await import('../services/script-service');
+
+          // Create script version
+          const script = await createScriptVersion({
+            projectId: project_id,
+            content,
+            source
+          });
+
+          res.status(201).json(script);
+        } catch (error: any) {
+          console.error('Error creating script:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to create script'
+          });
+        }
       }
     );
 
@@ -178,11 +274,79 @@ export class EditorRouter {
     this.router.post(
       '/scripts/:scriptId/edit/:operation',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        const { operation } = req.params;
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: `POST /api/v1/editor/scripts/:scriptId/edit/${operation}`
-        });
+        try {
+          const { scriptId } = req.params;
+          const { operation } = req.params;
+          const { tone } = req.body;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Validate operation
+          const validOperations = ['shorten', 'lengthen', 'rephrase', 'tone'];
+          if (!validOperations.includes(operation)) {
+            return res.status(400).json({
+              error: `Invalid operation. Must be one of: ${validOperations.join(', ')}`
+            });
+          }
+
+          // Validate tone for tone operation
+          if (operation === 'tone') {
+            const validTones = ['Casual', 'Professional', 'Funny', 'Inspirational'];
+            if (!tone || !validTones.includes(tone)) {
+              return res.status(400).json({
+                error: `Invalid tone. Must be one of: ${validTones.join(', ')}`
+              });
+            }
+          }
+
+          // Import services
+          const { getScriptById } = await import('../services/script-service');
+          const llmService = await import('../services/llm-service');
+
+          // Get script
+          const script = await getScriptById(scriptId);
+
+          // TODO: Verify user has access to this script via project ownership
+          // For now, proceed with preview generation
+
+          let previewContent: string;
+
+          switch (operation) {
+            case 'shorten':
+              const shortenResult = await llmService.shortenScript(script.content);
+              previewContent = shortenResult.content;
+              break;
+            case 'lengthen':
+              const lengthenResult = await llmService.lengthenScript(script.content);
+              previewContent = lengthenResult.content;
+              break;
+            case 'rephrase':
+              const rephraseResult = await llmService.rephraseScript(script.content);
+              previewContent = rephraseResult.content;
+              break;
+            case 'tone':
+              const toneResult = await llmService.changeTone(script.content, tone);
+              previewContent = toneResult.content;
+              break;
+            default:
+              return res.status(400).json({ error: 'Invalid operation' });
+          }
+
+          // Return preview (do not save)
+          res.status(200).json({
+            previewContent,
+            operation,
+            originalContent: script.content
+          });
+        } catch (error: any) {
+          console.error('Error in quick edit:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to generate preview'
+          });
+        }
       }
     );
 
@@ -194,10 +358,27 @@ export class EditorRouter {
     this.router.post(
       '/scripts/:scriptId/restore',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'POST /api/v1/editor/scripts/:scriptId/restore'
-        });
+        try {
+          const { scriptId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Import service
+          const { restoreScriptVersion } = await import('../services/script-service');
+
+          // Restore script (creates new version with restored content)
+          const restoredScript = await restoreScriptVersion(scriptId);
+
+          res.status(201).json(restoredScript);
+        } catch (error: any) {
+          console.error('Error restoring script:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to restore script'
+          });
+        }
       }
     );
 

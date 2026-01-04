@@ -16,6 +16,8 @@ history:
 **Priority**: P1 (Required for storyboard functionality)
 **Estimated Subtasks**: 15
 
+**Phase 1 Scope Note**: This work package implements synchronous scene generation APIs. No async job queues, render_jobs tables, or background workers are created in Phase 1 (those are Phase 2 only per FR-056-FR-063). Scene generation completes synchronously in <5 seconds per SC-004.
+
 ## Objective
 
 Automatically split scripts into scenes with proper narration text, duration, and keywords. Implement one-time generation policy (regenerate only if explicitly requested) with version mismatch detection.

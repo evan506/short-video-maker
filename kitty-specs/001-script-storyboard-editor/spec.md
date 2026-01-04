@@ -97,7 +97,7 @@ A creator works on their video across multiple sessions. They create a project, 
 
 ### User Story 6 - Progress/Recovery UX State Model (Priority: P3)
 
-**Note**: This is SPEC-ONLY for Phase 2 preparation. No implementation in Phase 1.
+**Phase 1 Implementation Note**: This section is for Phase 2 async infrastructure only. Phase 1 MUST use synchronous APIs. Do NOT implement job queues, workers, or the `render_jobs` table in Phase 1. This is documentation-only to prepare for Phase 2 architecture.
 
 The system defines state models for tracking async operations and recovery workflows. Render jobs progress through states: queued -> running -> succeeded/failed/canceled. Each job has step-level progress tracking (TTS generation, subtitle generation, media fetch, render composite). Failed jobs provide retry entry points and clear error messages.
 
@@ -160,7 +160,7 @@ The system defines state models for tracking async operations and recovery workf
 - **FR-004**: System MUST provide video type preset options: Explainer, Marketing, Tutorial, Recipe, Story
 - **FR-005**: System MUST generate a narration script from topic using LLM service
 - **FR-006**: System MUST save generated script as version 1 with source="llm"
-- **FR-007**: System MUST display generation progress indicator. Script generation MUST enforce a 60-second server-side timeout (FR-008). On timeout, return a clear error and provide a retry action.
+- **FR-007**: System MUST display a loading indicator (spinner) during script generation. **Phase 1 Note**: Real-time progress tracking is deferred to Phase 2 when async job queue infrastructure is available. Phase 1 uses synchronous APIs with loading spinners only. Script generation MUST enforce a 60-second server-side timeout (FR-008). On timeout, return a clear error and provide a retry action.
 - **FR-008**: System MUST handle generation timeout at 60 seconds with user-friendly error message
 - **FR-009**: System MUST provide "Retry" button on generation failure
 
@@ -198,7 +198,10 @@ The system defines state models for tracking async operations and recovery workf
 - **FR-036**: System MUST allow clicking scene card to open edit panel
 - **FR-037**: System MUST allow editing draft duration for each scene within the range of 1 second to min(60 seconds, project.target_duration_seconds), and MUST block save if the sum of all scene durations exceeds project.target_duration_seconds
 - **FR-038**: System MUST allow editing primary keyword for each scene
-- **FR-039**: System MUST provide subtitle preset options: Minimal, Highlight, Karaoke (at least 3 presets)
+- **FR-039**: System MUST provide subtitle preset options: Minimal, Highlight, Karaoke (at least 3 presets). **Preset Definitions**:
+  - **Minimal**: Simple static text displayed at the bottom of the scene with no background or special effects
+  - **Highlight**: Static text with a semi-transparent background box for better readability
+  - **Karaoke**: Visual-only word-by-word highlighting (text appears word-by-word in sync with narration timing). **Phase 1 Note**: Karaoke preset in Phase 1 is visual-only styling. Functional TTS-synchronized karaoke animation is deferred to Phase 2.
 - **FR-040**: System MUST allow changing subtitle preset per scene
 - **FR-041**: System MUST allow applying subtitle preset to all scenes with one click ("Apply to all" button)
 - **FR-042**: System MUST allow reordering scenes via drag-and-drop
@@ -219,6 +222,9 @@ The system defines state models for tracking async operations and recovery workf
 - **FR-055**: System MUST enforce user data isolation ensuring users can only access their own projects
 
 **Progress/Recovery State Model (Spec Only - Phase 2)**
+
+**Phase 1 Implementation Note**: This section is for Phase 2 async infrastructure only. Phase 1 MUST use synchronous APIs. Do NOT implement job queues, worker processes, database tables (`render_jobs`, `job_steps`), or any async job state tracking in Phase 1. These requirements are documentation-only to define the data model for future Phase 2 implementation.
+
 - **FR-056**: System MUST define render job status values: queued, running, succeeded, failed, canceled
 - **FR-057**: System MUST define render job step names: tts_generation, subtitle_generation, media_fetch, render_composite
 - **FR-058**: System MUST define job step status values: pending, running, failed, done
@@ -257,7 +263,7 @@ The system defines state models for tracking async operations and recovery workf
 - **SC-001**: Users can create a project and generate a script in under 90 seconds (topic entry to generated script display)
 - **SC-002**: Script generation success rate >= 95% (excluding network/timeout failures)
 - **SC-003**: Script quick-edit actions (Shorten/Lengthen/Rephrase/Change Tone) complete in under 45 seconds per action
-- **SC-004**: Scene generation from script completes in under 10 seconds for typical 60-second video
+- **SC-004**: Scene generation from script completes in under 5 seconds for typical 60-second video
 - **SC-005**: Scene auto-merge correctly reduces scene count to <=20 in 100% of cases where initial split exceeds 20 scenes
 - **SC-006**: Scene card edits save and persist correctly in 100% of cases (verified by page refresh and project reload)
 - **SC-007**: Project reload from dashboard displays all data correctly (script, scenes, metadata) in under 3 seconds
