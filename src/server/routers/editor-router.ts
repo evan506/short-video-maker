@@ -56,25 +56,74 @@ export class EditorRouter {
     this.router.post(
       '/projects',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'POST /api/v1/editor/projects'
-        });
+        try {
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Extract project data from request body
+          const { topic, platform, video_type, target_duration } = req.body;
+
+          // Validate required fields
+          if (!topic || !platform || !video_type || !target_duration) {
+            return res.status(400).json({
+              error: 'Missing required fields: topic, platform, video_type, target_duration'
+            });
+          }
+
+          // Import project service
+          const { createProject } = await import('../services/project-service');
+
+          // Create project with auto-generated title (T068)
+          const project = await createProject({
+            user_id: userId,
+            topic,
+            platform,
+            video_type,
+            target_duration
+          });
+
+          res.status(201).json(project);
+        } catch (error: any) {
+          console.error('Error creating project:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to create project'
+          });
+        }
       }
     );
 
     /**
      * GET /api/v1/editor/projects
      * List all projects for authenticated user
-     * Implementation: WP4 (T057)
+     * Implementation: WP4 (T057, T064)
+     * - Sorted by updated_at DESC
      */
     this.router.get(
       '/projects',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'GET /api/v1/editor/projects'
-        });
+        try {
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Import project service
+          const { listProjects } = await import('../services/project-service');
+
+          // List user's projects sorted by updated_at DESC (T064)
+          const projects = await listProjects(userId);
+
+          res.status(200).json({ projects });
+        } catch (error: any) {
+          console.error('Error listing projects:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to list projects'
+          });
+        }
       }
     );
 
@@ -82,14 +131,33 @@ export class EditorRouter {
      * GET /api/v1/editor/projects/:projectId
      * Get a single project with script and scenes
      * Implementation: WP4 (T058)
+     * - Fetches FULL state: project + script + scenes
+     * - Data consistency checks
      */
     this.router.get(
       '/projects/:projectId',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'GET /api/v1/editor/projects/:projectId'
-        });
+        try {
+          const { projectId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Import project service
+          const { getProjectWithFullState } = await import('../services/project-service');
+
+          // Load project with FULL state (script + scenes)
+          const project = await getProjectWithFullState(projectId, userId);
+
+          res.status(200).json(project);
+        } catch (error: any) {
+          console.error('Error loading project:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to load project'
+          });
+        }
       }
     );
 
@@ -101,10 +169,38 @@ export class EditorRouter {
     this.router.patch(
       '/projects/:projectId',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'PATCH /api/v1/editor/projects/:projectId'
-        });
+        try {
+          const { projectId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Extract update fields from request body
+          const { title, topic, platform, video_type, target_duration } = req.body;
+
+          // Build updates object (only include provided fields)
+          const updates: any = {};
+          if (title !== undefined) updates.title = title;
+          if (topic !== undefined) updates.topic = topic;
+          if (platform !== undefined) updates.platform = platform;
+          if (video_type !== undefined) updates.video_type = video_type;
+          if (target_duration !== undefined) updates.target_duration = target_duration;
+
+          // Import project service
+          const { updateProject } = await import('../services/project-service');
+
+          // Update project
+          const project = await updateProject(projectId, userId, updates);
+
+          res.status(200).json(project);
+        } catch (error: any) {
+          console.error('Error updating project:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to update project'
+          });
+        }
       }
     );
 
