@@ -155,6 +155,125 @@ export function useReorderScenes() {
 }
 
 /**
+ * Mutation: Update a single scene (optimistic)
+ *
+ * Implements optimistic updates for instant feedback.
+ */
+export function useUpdateScene() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ sceneId, updates }: { sceneId: string; updates: Partial<Scene> }) => {
+      const response = await fetchWithAuth(`/api/v1/editor/scenes/${sceneId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update scene');
+      }
+
+      return response.json() as Promise<Scene>;
+    },
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['scenes'] });
+
+      // Snapshot previous value
+      const previousScenes = queryClient.getQueryData(['scenes']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['scenes'], (old: any) => {
+        if (!old || !old.scenes) return old;
+
+        return {
+          ...old,
+          scenes: old.scenes.map((scene: Scene) =>
+            scene.id === variables.sceneId
+              ? { ...scene, ...variables.updates }
+              : scene
+          )
+        };
+      });
+
+      // Return context with previous value
+      return { previousScenes };
+    },
+    onError: (err, variables, context) => {
+      // Rollback to previous value on error
+      if (context?.previousScenes) {
+        queryClient.setQueryData(['scenes'], context.previousScenes);
+      }
+    },
+    onSuccess: (data, variables) => {
+      // Refetch to ensure server state is correct
+      // (Optimistic update should match, but this ensures consistency)
+      queryClient.invalidateQueries({ queryKey: ['scenes'] });
+    }
+  });
+}
+
+/**
+ * Mutation: Batch update scenes (optimistic)
+ *
+ * Used for "Apply to all" operations with optimistic updates.
+ */
+export function useBatchUpdateScenes() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ sceneIds, updates }: { sceneIds: string[]; updates: Partial<Scene> }) => {
+      const response = await fetchWithAuth('/api/v1/editor/scenes/batch', {
+        method: 'PATCH',
+        body: JSON.stringify({ scene_ids: sceneIds, updates })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to batch update scenes');
+      }
+
+      return response.json();
+    },
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['scenes'] });
+
+      // Snapshot previous value
+      const previousScenes = queryClient.getQueryData(['scenes']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['scenes'], (old: any) => {
+        if (!old || !old.scenes) return old;
+
+        return {
+          ...old,
+          scenes: old.scenes.map((scene: Scene) =>
+            variables.sceneIds.includes(scene.id)
+              ? { ...scene, ...variables.updates }
+              : scene
+          )
+        };
+      });
+
+      // Return context with previous value
+      return { previousScenes };
+    },
+    onError: (err, variables, context) => {
+      // Rollback to previous value on error
+      if (context?.previousScenes) {
+        queryClient.setQueryData(['scenes'], context.previousScenes);
+      }
+    },
+    onSuccess: (data, variables) => {
+      // Refetch to ensure server state is correct
+      queryClient.invalidateQueries({ queryKey: ['scenes'] });
+    }
+  });
+}
+
+/**
  * Query hook: Check for version mismatch
  *
  * Returns true if current script version differs from storyboard script version

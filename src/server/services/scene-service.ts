@@ -255,6 +255,41 @@ export async function updateScene(sceneId: string, updates: Partial<Scene>): Pro
 }
 
 /**
+ * Batch update multiple scenes
+ *
+ * Updates the same fields across multiple scenes (e.g., "Apply to all" for subtitle presets).
+ */
+export async function batchUpdateScenes(sceneIds: string[], updates: Partial<Scene>): Promise<Scene[]> {
+  if (!Array.isArray(sceneIds) || sceneIds.length === 0) {
+    throw new Error('scene_ids must be a non-empty array');
+  }
+
+  if (!updates || typeof updates !== 'object') {
+    throw new Error('updates must be an object');
+  }
+
+  // Validate duration if provided in updates
+  if (updates.duration_sec_draft !== undefined) {
+    if (updates.duration_sec_draft < 1) {
+      throw new Error('Duration must be at least 1 second');
+    }
+  }
+
+  // Perform batch update
+  const { data, error } = await supabase
+    .from('scenes')
+    .update(updates)
+    .in('id', sceneIds)
+    .select();
+
+  if (error) {
+    throw new Error(`Failed to batch update scenes: ${error.message}`);
+  }
+
+  return data;
+}
+
+/**
  * Reorder scenes (drag-and-drop)
  *
  * Updates order_index for all scenes based on new arrangement.

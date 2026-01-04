@@ -1,8 +1,12 @@
 /**
- * StoryboardView Component
+ * StoryboardView Component - Updated for WP03
  *
- * Displays scene cards in a grid layout with version mismatch detection,
- * one-time generation logic, and regenerate confirmation dialog.
+ * Displays scene cards in a grid layout with:
+ * - Scene editing (duration, keyword, subtitle preset)
+ * - Drag-and-drop reordering
+ * - Version mismatch detection
+ * - One-time generation logic
+ * - Visual save confirmation
  */
 
 import React, { useEffect, useState } from 'react';
@@ -17,15 +21,20 @@ import {
   DialogTitle,
   Grid,
   Paper,
+  Snackbar,
   Typography,
   useTheme
 } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { SceneCard } from './SceneCard';
+import { SceneEditDialog } from './SceneEditDialog';
 import {
   useScenes,
   useGenerateScenes,
   useDeleteScenes,
-  useVersionMismatch
+  useVersionMismatch,
+  useReorderScenes
 } from '../../hooks/use-scenes';
 
 interface Scene {
@@ -43,20 +52,34 @@ interface Scene {
 
 interface StoryboardViewProps {
   projectId: string;
+  projectTargetDuration?: number;
 }
 
 /**
  * StoryboardView Component
  *
  * Features:
- * - One-time generation: Auto-generates scenes on first visit
- * - Version mismatch detection: Shows warning if script changed
- * - Scene grid display with SceneCard components
- * - Regenerate confirmation dialog
+ * - Scene grid with editable cards (T043, T055)
+ * - Edit dialog with validation (T044, T048-T051)
+ * - Drag-and-drop reordering (T052)
+ * - Optimistic updates (T053)
+ * - Visual save confirmation (T054)
+ * - Version mismatch detection
+ * - One-time generation
  */
-export function StoryboardView({ projectId }: StoryboardViewProps) {
+export function StoryboardView({ projectId, projectTargetDuration = 60 }: StoryboardViewProps) {
   const theme = useTheme();
+
+  // Dialog state
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
+  const [editingScene, setEditingScene] = useState<Scene | null>(null);
+  const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
+
+  // Drag-and-drop state
+  const [draggedScene, setDraggedScene] = useState<Scene | null>(null);
+  const [scenesOrder, setScenesOrder] = useState<Scene[]>([]);
+
+  // Initialization flag
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // Queries
@@ -66,10 +89,21 @@ export function StoryboardView({ projectId }: StoryboardViewProps) {
   // Mutations
   const generateScenes = useGenerateScenes();
   const deleteScenes = useDeleteScenes();
+  const reorderScenes = useReorderScenes();
 
   const scenes = scenesData?.scenes || [];
   const scenesExist = scenesData?.scenesExist || false;
   const hasVersionMismatch = versionData?.hasMismatch || false;
+
+  // Sync scenesOrder when scenes change
+  useEffect(() => {
+    if (scenes.length > 0 && scenesOrder.length === 0) {
+      setScenesOrder([...scenes]);
+    } else if (scenes.length > 0 && scenes.length === scenesOrder.length) {
+      // Update if data changed but order is same
+      setScenesOrder([...scenes]);
+    }
+  }, [scenes]);
 
   // One-time generation logic (T041)
   useEffect(() => {
@@ -110,6 +144,85 @@ export function StoryboardView({ projectId }: StoryboardViewProps) {
    */
   const handleCancelRegenerate = () => {
     setShowRegenerateDialog(false);
+  };
+
+  /**
+   * Open edit dialog for a scene
+   */
+  const handleEditScene = (scene: Scene) => {
+    setEditingScene(scene);
+  };
+
+  /**
+   * Close edit dialog
+   */
+  const handleCloseEditDialog = () => {
+    setEditingScene(null);
+  };
+
+  /**
+   * Handle scene save
+   */
+  const handleSceneSave = (updatedScene: Scene) => {
+    // Show save confirmation (T054)
+    setShowSaveConfirmation(true);
+
+    // Auto-hide after 2 seconds
+    setTimeout(() => {
+      setShowSaveConfirmation(false);
+    }, 2000);
+  };
+
+  /**
+   * Drag-and-drop handlers (T052)
+   */
+  const handleDragStart = (e: React.DragEvent, scene: Scene) => {
+    setDraggedScene(scene);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetScene: Scene) => {
+    e.preventDefault();
+
+    if (!draggedScene || draggedScene.id === targetScene.id) {
+      setDraggedScene(null);
+      return;
+    }
+
+    // Reorder scenes locally (optimistic update)
+    const newOrder = [...scenesOrder];
+    const draggedIndex = newOrder.findIndex(s => s.id === draggedScene.id);
+    const targetIndex = newOrder.findIndex(s => s.id === targetScene.id);
+
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedScene);
+
+    // Update order_index for all scenes
+    const reorderedScenes = newOrder.map((scene, index) => ({
+      ...scene,
+      order_index: index
+    }));
+
+    setScenesOrder(reorderedScenes);
+    setDraggedScene(null);
+
+    // Call reorder endpoint
+    try {
+      const sceneIds = reorderedScenes.map(s => s.id);
+      await reorderScenes.mutateAsync({
+        projectId,
+        sceneIds
+      });
+    } catch (error) {
+      console.error('Failed to reorder scenes:', error);
+      // Rollback on error
+      setScenesOrder([...scenes]);
+    }
   };
 
   // Loading state
@@ -170,6 +283,21 @@ export function StoryboardView({ projectId }: StoryboardViewProps) {
         </Alert>
       )}
 
+      {/* Save confirmation snackbar (T054) */}
+      <Snackbar
+        open={showSaveConfirmation}
+        autoHideDuration={2000}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          icon={<CheckCircleIcon fontSize="inherit" />}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          Scene saved successfully!
+        </Alert>
+      </Snackbar>
+
       {/* Header with actions */}
       <Box
         sx={{
@@ -216,15 +344,34 @@ export function StoryboardView({ projectId }: StoryboardViewProps) {
           )}
         </Paper>
       ) : (
-        // Scene grid
+        // Scene grid with drag-and-drop (T052)
         <Grid container spacing={2}>
-          {scenes.map((scene, index) => (
+          {scenesOrder.map((scene, index) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={scene.id}>
-              <SceneCard scene={scene} index={index} />
+              <SceneCard
+                scene={scene}
+                index={index}
+                onEdit={handleEditScene}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                isDragging={draggedScene?.id === scene.id}
+                showSaveConfirmation={showSaveConfirmation && editingScene?.id === scene.id}
+              />
             </Grid>
           ))}
         </Grid>
       )}
+
+      {/* Scene Edit Dialog (T044) */}
+      <SceneEditDialog
+        open={!!editingScene}
+        scene={editingScene}
+        allScenes={scenes}
+        projectTargetDuration={projectTargetDuration}
+        onClose={handleCloseEditDialog}
+        onSave={handleSceneSave}
+      />
 
       {/* Regenerate Confirmation Dialog (T040) */}
       <Dialog
@@ -259,109 +406,5 @@ export function StoryboardView({ projectId }: StoryboardViewProps) {
         </DialogActions>
       </Dialog>
     </Box>
-  );
-}
-
-/**
- * SceneCard Component
- *
- * Displays individual scene with narration, duration, and keyword
- */
-interface SceneCardProps {
-  scene: Scene;
-  index: number;
-}
-
-function SceneCard({ scene, index }: SceneCardProps) {
-  const theme = useTheme();
-
-  return (
-    <Paper
-      sx={{
-        p: 2,
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        border: `1px solid ${theme.palette.divider}`,
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: theme.shadows[4]
-        },
-        cursor: 'pointer'
-      }}
-    >
-      {/* Scene number */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 1
-        }}
-      >
-        <Typography variant="overline" color="text.secondary">
-          Scene {index + 1}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          {scene.duration_sec_draft}s
-        </Typography>
-      </Box>
-
-      {/* Thumbnail placeholder */}
-      <Box
-        sx={{
-          width: '100%',
-          aspectRatio: '16/9',
-          backgroundColor: theme.palette.action.hover,
-          borderRadius: 1,
-          mb: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: theme.palette.text.hint
-        }}
-      >
-        <Typography variant="caption">Thumbnail</Typography>
-      </Box>
-
-      {/* Narration text */}
-      <Typography
-        variant="body2"
-        sx={{
-          flexGrow: 1,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          display: '-webkit-box',
-          WebkitLineClamp: 4,
-          WebkitBoxOrient: 'vertical',
-          mb: 1
-        }}
-      >
-        {scene.narration_text}
-      </Typography>
-
-      {/* Keyword badge */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 0.5,
-          flexWrap: 'wrap'
-        }}
-      >
-        <Typography
-          variant="caption"
-          sx={{
-            px: 1,
-            py: 0.5,
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            borderRadius: 1
-          }}
-        >
-          {scene.primary_keyword}
-        </Typography>
-      </Box>
-    </Paper>
   );
 }

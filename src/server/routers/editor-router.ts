@@ -530,10 +530,51 @@ export class EditorRouter {
     this.router.patch(
       '/scenes/:sceneId',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'PATCH /api/v1/editor/scenes/:sceneId'
-        });
+        try {
+          const { sceneId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Extract update fields from request body
+          const {
+            narration_text,
+            duration_sec_draft,
+            primary_keyword,
+            subtitle_style_preset_id
+          } = req.body;
+
+          // Build updates object (only include provided fields)
+          const updates: any = {};
+          if (narration_text !== undefined) updates.narration_text = narration_text;
+          if (duration_sec_draft !== undefined) updates.duration_sec_draft = duration_sec_draft;
+          if (primary_keyword !== undefined) updates.primary_keyword = primary_keyword;
+          if (subtitle_style_preset_id !== undefined) updates.subtitle_style_preset_id = subtitle_style_preset_id;
+
+          // Validate duration if provided
+          if (updates.duration_sec_draft !== undefined) {
+            if (updates.duration_sec_draft < 1) {
+              return res.status(400).json({
+                error: 'Duration must be at least 1 second'
+              });
+            }
+          }
+
+          // Import scene service
+          const { updateScene } = await import('../services/scene-service');
+
+          // Update scene
+          const updatedScene = await updateScene(sceneId, updates);
+
+          res.status(200).json(updatedScene);
+        } catch (error: any) {
+          console.error('Error updating scene:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to update scene'
+          });
+        }
       }
     );
 
@@ -545,10 +586,54 @@ export class EditorRouter {
     this.router.patch(
       '/scenes/batch',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'PATCH /api/v1/editor/scenes/batch'
-        });
+        try {
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Extract batch update parameters
+          const { scene_ids, updates } = req.body;
+
+          // Validate request
+          if (!Array.isArray(scene_ids) || scene_ids.length === 0) {
+            return res.status(400).json({
+              error: 'scene_ids must be a non-empty array'
+            });
+          }
+
+          if (!updates || typeof updates !== 'object') {
+            return res.status(400).json({
+              error: 'updates must be an object'
+            });
+          }
+
+          // Validate duration if provided in updates
+          if (updates.duration_sec_draft !== undefined) {
+            if (updates.duration_sec_draft < 1) {
+              return res.status(400).json({
+                error: 'Duration must be at least 1 second'
+              });
+            }
+          }
+
+          // Import scene service
+          const { batchUpdateScenes } = await import('../services/scene-service');
+
+          // Perform batch update
+          const updatedScenes = await batchUpdateScenes(scene_ids, updates);
+
+          res.status(200).json({
+            updated: updatedScenes.length,
+            scenes: updatedScenes
+          });
+        } catch (error: any) {
+          console.error('Error in batch update:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to perform batch update'
+          });
+        }
       }
     );
 
@@ -560,10 +645,40 @@ export class EditorRouter {
     this.router.post(
       '/projects/:projectId/scenes/reorder',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'POST /api/v1/editor/projects/:projectId/scenes/reorder'
-        });
+        try {
+          const { projectId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Extract scene IDs array from request body
+          const { scene_ids } = req.body;
+
+          // Validate request
+          if (!Array.isArray(scene_ids) || scene_ids.length === 0) {
+            return res.status(400).json({
+              error: 'scene_ids must be a non-empty array'
+            });
+          }
+
+          // Import scene service
+          const { reorderScenes } = await import('../services/scene-service');
+
+          // Reorder scenes (updates order_index for all scenes)
+          await reorderScenes(projectId, scene_ids);
+
+          res.status(200).json({
+            message: 'Scenes reordered successfully',
+            reordered: true
+          });
+        } catch (error: any) {
+          console.error('Error reordering scenes:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to reorder scenes'
+          });
+        }
       }
     );
   }
