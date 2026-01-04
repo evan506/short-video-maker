@@ -1,12 +1,17 @@
 ---
 work_package_id: "WP04"
 subtasks: ["T056", "T057", "T058", "T059", "T060", "T061", "T062", "T063", "T064", "T065", "T066", "T067", "T068", "T069", "T070"]
-lane: "planned"
+lane: "doing"
 title: "Project Management & Persistence"
+agent: "claude"
+shell_pid: "56374"
 history:
   - timestamp: "2026-01-02T00:00:00Z"
     author: "Claude (AI Task Generation Agent)"
     event: "created"
+  - timestamp: "2026-01-04T21:00:00Z"
+    author: "claude"
+    event: "Started implementation of Project Management & Persistence"
 ---
 
 # Work Package: Project Management & Persistence
