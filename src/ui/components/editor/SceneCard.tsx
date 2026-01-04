@@ -109,6 +109,7 @@ export function SceneCard({
 
   return (
     <Card
+      data-testid="scene-card"
       draggable={!!onDragStart}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
