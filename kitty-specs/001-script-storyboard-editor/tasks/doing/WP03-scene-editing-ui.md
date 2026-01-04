@@ -1,12 +1,17 @@
 ---
 work_package_id: "WP03"
 subtasks: ["T043", "T044", "T045", "T046", "T047", "T048", "T049", "T050", "T051", "T052", "T053", "T054", "T055"]
-lane: "planned"
+lane: "doing"
 title: "Scene Editing UI"
+agent: "claude"
+shell_pid: "31339"
 history:
   - timestamp: "2026-01-02T00:00:00Z"
     author: "Claude (AI Task Generation Agent)"
     event: "created"
+  - timestamp: "2026-01-04T20:20:00Z"
+    author: "claude"
+    event: "Started implementation of Scene Editing UI"
 ---
 
 # Work Package: Scene Editing UI
