@@ -1,12 +1,17 @@
 ---
 work_package_id: "WP02"
 subtasks: ["T028", "T029", "T030", "T031", "T032", "T033", "T034", "T035", "T036", "T037", "T038", "T039", "T040", "T041", "T042"]
-lane: "planned"
+lane: "doing"
 title: "Scene Generation & Management"
+agent: "claude"
+shell_pid: "57355"
 history:
   - timestamp: "2026-01-02T00:00:00Z"
     author: "Claude (AI Task Generation Agent)"
     event: "created"
+  - timestamp: "2026-01-04T19:50:00Z"
+    author: "claude"
+    event: "Started implementation of Scene Generation & Management"
 ---
 
 # Work Package: Scene Generation & Management
