@@ -6,62 +6,7 @@
  */
 
 import { generateScenes as generateScenesUtil } from '../../lib/scene-utils';
-
-// TODO: Replace with actual Supabase client when @supabase/supabase-js is installed
-// For now, this is a placeholder that matches the expected API interface
-const supabase = {
-  from: (table: string) => ({
-    insert: (data: any) => ({
-      select: () => ({
-        single: async () => {
-          // Placeholder implementation
-          console.log(`[DB] Insert into ${table}:`, data);
-          return { data: { ...data, id: 'mock-id', created_at: new Date().toISOString() }, error: null };
-        }
-      }),
-      then: (resolve: any) => resolve({
-        data: [{ ...data, id: 'mock-id', created_at: new Date().toISOString() }],
-        error: null
-      })
-    }),
-    select: (columns?: string) => ({
-      eq: (field: string, value: any) => ({
-        order: (field2: string, options: any) => ({
-          single: async () => {
-            console.log(`[DB] Query ${table} where ${field}=${value}`);
-            return { data: null, error: null };
-          },
-          maybeSingle: async () => {
-            console.log(`[DB] Query ${table} where ${field}=${value} (maybeSingle)`);
-            return { data: null, error: null };
-          }
-        }),
-        limit: (n: number) => ({
-          maybeSingle: async () => {
-            console.log(`[DB] Query ${table} where ${field}=${value} limit ${n}`);
-            return { data: null, error: null };
-          }
-        })
-      })
-    }),
-    delete: () => ({
-      eq: (field: string, value: any) => ({
-        async select() {
-          console.log(`[DB] Delete from ${table} where ${field}=${value}`);
-          return { data: [], error: null };
-        }
-      })
-    }),
-    update: (data: any) => ({
-      eq: (field: string, value: any) => ({
-        async select() {
-          console.log(`[DB] Update ${table} set`, data, `where ${field}=${value}`);
-          return { data, error: null };
-        }
-      })
-    })
-  })
-};
+import { supabase } from '../lib/supabase';
 
 export interface GenerateScenesParams {
   projectId: string;

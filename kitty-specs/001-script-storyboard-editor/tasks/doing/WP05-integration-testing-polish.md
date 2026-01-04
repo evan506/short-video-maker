@@ -1,10 +1,15 @@
 ---
 work_package_id: "WP05"
 subtasks: ["T071", "T072", "T073", "T074", "T075", "T076", "T077", "T078", "T079", "T080", "T081", "T082", "T083", "T084", "T085", "T086", "T087", "T088", "T089", "T090"]
-lane: "planned"
+lane: "doing"
 title: "Integration, Testing & Polish"
 history:
+  agent: "claude"
+  shell_pid: "96161"
   - timestamp: "2026-01-02T00:00:00Z"
+  - timestamp: "2026-01-04T22:30:00Z"
+    author: "claude"
+    event: "Started implementation of Integration, Testing & Polish"
     author: "Claude (AI Task Generation Agent)"
     event: "created"
 ---
