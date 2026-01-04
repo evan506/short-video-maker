@@ -132,9 +132,18 @@ export const deleteProject = async (projectId: string): Promise<void> => {
 /**
  * Generate a new script using LLM
  */
-export const generateScript = async (projectId: string): Promise<Script> => {
+export const generateScript = async (
+  projectId: string,
+  params: {
+    topic: string;
+    platform: 'shorts' | 'tiktok' | 'reels';
+    target_duration: 15 | 30 | 60;
+    video_type: 'Explainer' | 'Marketing' | 'Tutorial' | 'Recipe' | 'Story';
+  }
+): Promise<Script> => {
   const response = await apiRequest(`/projects/${projectId}/scripts/generate`, {
     method: 'POST',
+    body: JSON.stringify(params),
   });
   return response.json();
 };
@@ -162,12 +171,17 @@ export const createScript = async (data: CreateScriptDto): Promise<Script> => {
 
 /**
  * Quick edit a script (shorten, lengthen, rephrase, tone)
+ * Returns preview content (not saved)
  */
 export const quickEditScript = async (
   scriptId: string,
   operation: 'shorten' | 'lengthen' | 'rephrase' | 'tone',
   tone?: string
-): Promise<Script> => {
+): Promise<{
+  previewContent: string;
+  operation: string;
+  originalContent: string;
+}> => {
   const response = await apiRequest(`/scripts/${scriptId}/edit/${operation}`, {
     method: 'POST',
     body: JSON.stringify(tone ? { tone } : {}),
