@@ -3,5 +3,17 @@
     "ANTHROPIC_API_KEY": "ca27b9cfc80347499cd61b433e473d46.0q2uY3Cr9Cfacc9K",
     "ANTHROPIC_AUTH_TOKEN": "ca27b9cfc80347499cd61b433e473d46.0q2uY3Cr9Cfacc9K",
     "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic"
-  }
+  },
+  "permissions": {
+    "allow": [
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__list_migrations"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
 }

@@ -392,10 +392,52 @@ export class EditorRouter {
     this.router.post(
       '/projects/:projectId/scenes/generate',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'POST /api/v1/editor/projects/:projectId/scenes/generate'
-        });
+        try {
+          const { projectId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Import scene service
+          const { generateScenes, scenesExist } = await import('../services/scene-service');
+          const { getCurrentScript } = await import('../services/script-service');
+
+          // Check if scenes already exist (one-time generation policy)
+          const existingScenes = await scenesExist(projectId);
+          const forceRegenerate = req.body.force_regenerate === true;
+
+          if (existingScenes && !forceRegenerate) {
+            return res.status(400).json({
+              error: 'Scenes already exist. Set force_regenerate=true to regenerate.',
+              scenesAlreadyExist: true
+            });
+          }
+
+          // Get current script for the project
+          const script = await getCurrentScript(projectId);
+
+          if (!script) {
+            return res.status(404).json({
+              error: 'No script found for this project. Generate a script first.'
+            });
+          }
+
+          // Generate scenes from script
+          const scenes = await generateScenes({
+            projectId,
+            scriptContent: script.content,
+            scriptVersion: script.version
+          });
+
+          res.status(201).json(scenes);
+        } catch (error: any) {
+          console.error('Error generating scenes:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to generate scenes'
+          });
+        }
       }
     );
 
@@ -407,10 +449,41 @@ export class EditorRouter {
     this.router.get(
       '/projects/:projectId/scenes',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'GET /api/v1/editor/projects/:projectId/scenes'
-        });
+        try {
+          const { projectId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Import scene service
+          const { getScenesByProject, scenesExist } = await import('../services/scene-service');
+
+          // Check if scenes exist
+          const hasScenes = await scenesExist(projectId);
+
+          if (!hasScenes) {
+            return res.status(200).json({
+              scenes: [],
+              scenesExist: false,
+              message: 'No scenes found for this project. Generate scenes first.'
+            });
+          }
+
+          // Get all scenes for project
+          const scenes = await getScenesByProject(projectId);
+
+          res.status(200).json({
+            scenes,
+            scenesExist: true
+          });
+        } catch (error: any) {
+          console.error('Error fetching scenes:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to fetch scenes'
+          });
+        }
       }
     );
 
@@ -422,10 +495,30 @@ export class EditorRouter {
     this.router.delete(
       '/projects/:projectId/scenes',
       async (req: ExpressRequest, res: ExpressResponse) => {
-        res.status(501).json({
-          message: 'Not implemented yet',
-          route: 'DELETE /api/v1/editor/projects/:projectId/scenes'
-        });
+        try {
+          const { projectId } = req.params;
+          const userId = req.user?.id;
+
+          if (!userId) {
+            return res.status(401).json({ error: 'User not authenticated' });
+          }
+
+          // Import scene service
+          const { deleteScenes } = await import('../services/scene-service');
+
+          // Delete all scenes for project
+          await deleteScenes(projectId);
+
+          res.status(200).json({
+            message: 'Scenes deleted successfully',
+            deleted: true
+          });
+        } catch (error: any) {
+          console.error('Error deleting scenes:', error);
+          res.status(500).json({
+            error: error.message || 'Failed to delete scenes'
+          });
+        }
       }
     );
 
