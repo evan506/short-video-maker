@@ -202,7 +202,6 @@ export async function getProjectWithFullState(
   if (project.storyboard_script_version !== null && scenes && scenes.length > 0) {
     // Scenes exist - verify consistency
     // In real implementation, we might check scene metadata against version
-    console.log(`Project loaded with ${scenes.length} scenes for storyboard version ${project.storyboard_script_version}`);
   }
 
   return {
