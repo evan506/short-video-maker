@@ -1,7 +1,25 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-05T22:45:42Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "0e3b190cac15766852d41a17e79792061980346f",
+      "branch": "001-script-storyboard-editor",
+      "mode": "local",
+      "validation_commands": [
+        "npm run build",
+        "npm run test:e2e -- tests/e2e/happy-path.spec.ts"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-05T22:45:42Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "0e3b190cac15766852d41a17e79792061980346f",
+  "created_at": "2026-01-01T15:23:48Z",
   "feature_number": "001",
-  "slug": "001-script-storyboard-editor",
   "friendly_name": "Script & Storyboard Editor",
-  "source_description": "Phase 1: Topic -> script auto-generation (<=60s goal) -> storyboard scene cards (create/edit)\n\nThe feature will:\n1. Accept a topic input with options (platform, target duration, video type)\n2. Auto-generate a script using LLM (OpenRouter) with quick edit capabilities (Shorten/Lengthen/Rephrase/Change Tone)\n3. Generate storyboard scenes (one-time split with auto-merge if >20 scenes for 60s)\n4. Allow scene card editing (duration, keywords, subtitle presets, media replacement)\n5. Provide voice selection with sample playback\n6. Support async rendering with progress tracking and retry logic\n\nOut of scope for this phase:\n- Media fetching/providers (Pexels/Pixabay integration)\n- TTS/voice synthesis (only voice selection UI)\n- Rendering/job queue implementation\n\nPRD source: docs/AutoShorts_PRD.md\nCore value props: 1) Quick script editing, 2) Scene storyboard editing, 3) Progress/wait UX",
-  "created_at": "2026-01-01T15:23:48Z"
+  "slug": "001-script-storyboard-editor",
+  "source_description": "Phase 1: Topic -> script auto-generation (<=60s goal) -> storyboard scene cards (create/edit)\n\nThe feature will:\n1. Accept a topic input with options (platform, target duration, video type)\n2. Auto-generate a script using LLM (OpenRouter) with quick edit capabilities (Shorten/Lengthen/Rephrase/Change Tone)\n3. Generate storyboard scenes (one-time split with auto-merge if >20 scenes for 60s)\n4. Allow scene card editing (duration, keywords, subtitle presets, media replacement)\n5. Provide voice selection with sample playback\n6. Support async rendering with progress tracking and retry logic\n\nOut of scope for this phase:\n- Media fetching/providers (Pexels/Pixabay integration)\n- TTS/voice synthesis (only voice selection UI)\n- Rendering/job queue implementation\n\nPRD source: docs/AutoShorts_PRD.md\nCore value props: 1) Quick script editing, 2) Scene storyboard editing, 3) Progress/wait UX"
 }
