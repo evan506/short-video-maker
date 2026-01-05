@@ -1,0 +1,730 @@
+openapi: 3.1.0
+info:
+  title: Script & Storyboard Editor API
+  version: 1.0.0
+  description: |
+    REST API for the Script & Storyboard Editor feature (Phase 1).
+
+    **Authentication**: Supabase Auth (Bearer token in Authorization header)
+    **Base URL**: `http://localhost:3000/api/v1`
+    **Content-Type**: `application/json`
+
+  contact:
+    name: AutoShorts Team
+    email: support@example.com
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+  - url: https://api.example.com/api/v1
+    description: Production
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase Auth JWT token
+
+  schemas:
+    Project:
+      type: object
+      required:
+        - id
+        - user_id
+        - title
+        - topic
+        - platform
+        - video_type
+        - target_duration
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique project identifier
+        user_id:
+          type: string
+          format: uuid
+          description: Owner user ID (from Supabase Auth)
+        title:
+          type: string
+          description: Project title
+        topic:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: User's topic description
+        platform:
+          type: string
+          enum: [shorts, tiktok, reels]
+          description: Target platform
+        video_type:
+          type: string
+          enum: [Explainer, Marketing, Tutorial, Recipe, Story]
+          description: Video type preset
+        target_duration:
+          type: integer
+          enum: [15, 30, 60]
+          description: Target video duration in seconds
+        status:
+          type: string
+          enum: [draft, rendering, done, failed]
+          description: Project status
+        current_script_version:
+          type: integer
+          nullable: true
+          description: Latest script version number
+        storyboard_script_version:
+          type: integer
+          nullable: true
+          description: Script version used for current scenes
+        voice_id:
+          type: string
+          nullable: true
+          description: Selected voice ID (reserved for Phase 2)
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Script:
+      type: object
+      required:
+        - id
+        - project_id
+        - version
+        - content
+        - source
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          minimum: 1
+          description: Script version number
+        content:
+          type: string
+          minLength: 50
+          description: Full narration script text
+        source:
+          type: string
+          enum: [llm, user]
+          description: Script generation source
+        created_at:
+          type: string
+          format: date-time
+
+    Scene:
+      type: object
+      required:
+        - id
+        - project_id
+        - order_index
+        - narration_text
+        - duration_sec_draft
+        - primary_keyword
+        - subtitle_style_preset_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        order_index:
+          type: integer
+          minimum: 0
+          description: Scene position in storyboard
+        narration_text:
+          type: string
+          description: Narration script segment
+        duration_sec_draft:
+          type: integer
+          minimum: 1
+          description: Draft duration in seconds (user-editable)
+        duration_sec_final:
+          type: integer
+          nullable: true
+          description: Final duration after TTS (Phase 2)
+        primary_keyword:
+          type: string
+          description: Search keyword for media matching
+        subtitle_style_preset_id:
+          type: integer
+          minimum: 1
+          description: Subtitle style preset reference
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SubtitlePreset:
+      type: object
+      required:
+        - id
+        - name
+        - config
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        config:
+          type: object
+          additionalProperties: true
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code for programmatic handling
+
+    CreateProjectRequest:
+      type: object
+      required:
+        - topic
+        - platform
+        - video_type
+        - target_duration
+      properties:
+        topic:
+          type: string
+          minLength: 10
+          maxLength: 500
+          example: "AI productivity tips for remote workers"
+        platform:
+          type: string
+          enum: [shorts, tiktok, reels]
+          example: shorts
+        video_type:
+          type: string
+          enum: [Explainer, Marketing, Tutorial, Recipe, Story]
+          example: Explainer
+        target_duration:
+          type: integer
+          enum: [15, 30, 60]
+          example: 30
+
+    GenerateScriptRequest:
+      type: object
+      properties:
+        model:
+          type: string
+          description: Override default LLM model (optional)
+          example: "anthropic/claude-3-haiku"
+
+    QuickEditRequest:
+      type: object
+      properties:
+        tone:
+          type: string
+          enum: [Casual, Professional, Funny, Inspirational]
+          description: Required only for Change Tone operation
+
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Project ID
+
+    ScriptId:
+      name: scriptId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Script ID
+
+    SceneId:
+      name: sceneId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Scene ID
+
+paths:
+  /projects:
+    get:
+      summary: List all projects for authenticated user
+      tags: [Projects]
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items: $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new project
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Project'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}:
+    get:
+      summary: Get project by ID
+      tags: [Projects]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Error'
+
+    patch:
+      summary: Update project
+      tags: [Projects]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                topic:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+                platform:
+                  type: string
+                  enum: [shorts, tiktok, reels]
+                video_type:
+                  type: string
+                  enum: [Explainer, Marketing, Tutorial, Recipe, Story]
+                target_duration:
+                  type: integer
+                  enum: [15, 30, 60]
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found
+        '400':
+          description: Validation error
+
+    delete:
+      summary: Delete project
+      tags: [Projects]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '204':
+          description: Project deleted (no content)
+        '404':
+          description: Project not found
+
+  /projects/{projectId}/scripts/generate:
+    post:
+      summary: Generate script from project topic using LLM
+      tags: [Scripts]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        content:
+          application/json:
+            schema: $ref: '#/components/schemas/GenerateScriptRequest'
+      responses:
+        '201':
+          description: Script generated
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Script'
+        '408':
+          description: Generation timeout (60s)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Generation timed out. Please retry or try a shorter topic."
+        '500':
+          description: LLM API error
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/scripts:
+    get:
+      summary: List all scripts for a project
+      tags: [Scripts]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: List of scripts
+          content:
+            application/json:
+              schema:
+                type: array
+                items: $ref: '#/components/schemas/Script'
+
+  /scripts/{scriptId}:
+    get:
+      summary: Get script by ID
+      tags: [Scripts]
+      parameters:
+        - $ref: '#/components/parameters/ScriptId'
+      responses:
+        '200':
+          description: Script details
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Script'
+
+    patch:
+      summary: Update script content (manual edit)
+      tags: [Scripts]
+      parameters:
+        - $ref: '#/components/parameters/ScriptId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  minLength: 50
+      responses:
+        '200':
+          description: Script updated (new version created)
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Script'
+
+  /scripts/{scriptId}/edit/shorten:
+    post:
+      summary: Generate shortened version of script
+      tags: [Scripts - Quick Edit]
+      parameters:
+        - $ref: '#/components/parameters/ScriptId'
+      responses:
+        '200':
+          description: Preview version generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preview_content:
+                    type: string
+                    description: Shortened script (target 70% length)
+                  source:
+                    type: string
+                    enum: [llm]
+
+  /scripts/{scriptId}/edit/lengthen:
+    post:
+      summary: Generate lengthened version of script
+      tags: [Scripts - Quick Edit]
+      parameters:
+        - $ref: '#/components/parameters/ScriptId'
+      responses:
+        '200':
+          description: Preview version generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preview_content:
+                    type: string
+                    description: Lengthened script (target 130% length)
+
+  /scripts/{scriptId}/edit/rephrase:
+    post:
+      summary: Generate rephrased version of script
+      tags: [Scripts - Quick Edit]
+      parameters:
+        - $ref: '#/components/parameters/ScriptId'
+      responses:
+        '200':
+          description: Preview version generated
+
+  /scripts/{scriptId}/edit/tone:
+    post:
+      summary: Generate script with changed tone
+      tags: [Scripts - Quick Edit]
+      parameters:
+        - $ref: '#/components/parameters/ScriptId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tone
+              properties:
+                tone:
+                  type: string
+                  enum: [Casual, Professional, Funny, Inspirational]
+      responses:
+        '200':
+          description: Preview version generated
+
+  /scripts/{scriptId}/apply-preview:
+    post:
+      summary: Apply preview version as new script version
+      tags: [Scripts - Quick Edit]
+      parameters:
+        - $ref: '#/components/parameters/ScriptId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - preview_content
+              properties:
+                preview_content:
+                  type: string
+                  minLength: 50
+      responses:
+        '201':
+          description: New script version created
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Script'
+
+  /projects/{projectId}/scenes:
+    get:
+      summary: Get all scenes for a project
+      tags: [Scenes]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: List of scenes (ordered by order_index)
+          headers:
+            X-Storyboard-Script-Version:
+              schema:
+                type: integer
+              description: Script version used for scene generation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: $ref: '#/components/schemas/Scene'
+        '404':
+          description: No scenes found (first-time access)
+
+    post:
+      summary: Generate scenes from latest script (one-time)
+      tags: [Scenes]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '201':
+          description: Scenes generated
+          content:
+            application/json:
+              schema:
+                type: array
+                items: $ref: '#/components/schemas/Scene'
+        '400':
+          description: No script exists or generation failed
+
+  /scenes/{sceneId}:
+    get:
+      summary: Get scene by ID
+      tags: [Scenes]
+      parameters:
+        - $ref: '#/components/parameters/SceneId'
+      responses:
+        '200':
+          description: Scene details
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Scene'
+
+    patch:
+      summary: Update scene (duration, keyword, subtitle preset)
+      tags: [Scenes]
+      parameters:
+        - $ref: '#/components/parameters/SceneId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                narration_text:
+                  type: string
+                duration_sec_draft:
+                  type: integer
+                  minimum: 1
+                primary_keyword:
+                  type: string
+                  minLength: 1
+                subtitle_style_preset_id:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Scene updated
+          content:
+            application/json:
+              schema: $ref: '#/components/schemas/Scene'
+
+    delete:
+      summary: Delete scene (prevented if last scene)
+      tags: [Scenes]
+      parameters:
+        - $ref: '#/components/parameters/SceneId'
+      responses:
+        '204':
+          description: Scene deleted
+        '400':
+          description: Cannot delete last scene
+
+  /projects/{projectId}/scenes/reorder:
+    post:
+      summary: Reorder scenes (drag-and-drop)
+      tags: [Scenes]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - scene_ids
+              properties:
+                scene_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: New order of scene IDs
+      responses:
+        '200':
+          description: Scenes reordered
+          content:
+            application/json:
+              schema:
+                type: array
+                items: $ref: '#/components/schemas/Scene'
+
+  /projects/{projectId}/scenes/regenerate:
+    post:
+      summary: Regenerate scenes from latest script (overwrite existing)
+      tags: [Scenes]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '201':
+          description: Scenes regenerated (old scenes deleted)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: $ref: '#/components/schemas/Scene'
+
+  /subtitle-presets:
+    get:
+      summary: List all subtitle presets
+      tags: [Reference Data]
+      responses:
+        '200':
+          description: List of subtitle presets
+          content:
+            application/json:
+              schema:
+                type: array
+                items: $ref: '#/components/schemas/SubtitlePreset'
+
+tags:
+  - name: Projects
+    description: Project CRUD operations
+  - name: Scripts
+    description: Script generation and versioning
+  - name: Scripts - Quick Edit
+    description: Quick-edit tools (Shorten, Lengthen, Rephrase, Change Tone)
+  - name: Scenes
+    description: Scene generation and editing
+  - name: Reference Data
+    description: Read-only reference data (subtitle presets)

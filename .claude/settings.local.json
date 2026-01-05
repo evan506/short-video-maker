@@ -1,0 +1,38 @@
+{
+  "env": {
+    "ANTHROPIC_API_KEY": "ca27b9cfc80347499cd61b433e473d46.0q2uY3Cr9Cfacc9K",
+    "ANTHROPIC_AUTH_TOKEN": "ca27b9cfc80347499cd61b433e473d46.0q2uY3Cr9Cfacc9K",
+    "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic"
+  },
+  "permissions": {
+    "allow": [
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__list_migrations",
+      "Bash(.kittify/scripts/bash/check-prerequisites.sh:*)",
+      "Bash(npx playwright test:*)",
+      "mcp__playwright__playwright_screenshot",
+      "mcp__playwright__playwright_console_logs",
+      "mcp__playwright__playwright_get_visible_text",
+      "mcp__playwright__playwright_fill",
+      "mcp__playwright__playwright_click",
+      "mcp__playwright__playwright_evaluate",
+      "mcp__playwright__playwright_navigate",
+      "Bash(lsof:*)",
+      "Bash(xargs ps:*)",
+      "mcp__supabase__list_projects",
+      "mcp__supabase__get_advisors",
+      "mcp__supabase__get_project",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__get_publishable_keys",
+      "mcp__playwright__playwright_press_key",
+      "Bash(.kittify/scripts/bash/accept-feature.sh:*)",
+      "Bash(python3:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
+}

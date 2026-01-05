@@ -30,14 +30,9 @@ const VideoDetails: React.FC = () => {
 
       if (isMounted.current) {
         setStatus(videoStatus || 'unknown');
-        console.log("videoStatus", videoStatus);
-        
+
         if (videoStatus !== 'processing') {
-          console.log("video is not processing");
-          console.log("interval", intervalRef.current);
-          
           if (intervalRef.current) {
-            console.log("clearing interval");
             clearInterval(intervalRef.current);
             intervalRef.current = null;
           }

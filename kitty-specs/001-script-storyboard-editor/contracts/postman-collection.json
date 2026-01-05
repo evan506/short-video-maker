@@ -1,0 +1,560 @@
+{
+  "info": {
+    "name": "Script & Storyboard Editor API",
+    "description": "REST API for the Script & Storyboard Editor feature (Phase 1)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "projectId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "scriptId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sceneId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string",
+      "description": "Supabase Auth JWT token"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "List All Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            },
+            "description": "Get all projects for authenticated user"
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"AI productivity tips for remote workers\",\n  \"platform\": \"shorts\",\n  \"video_type\": \"Explainer\",\n  \"target_duration\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            },
+            "description": "Create a new video project"
+          }
+        },
+        {
+          "name": "Get Project",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"My Updated Project Title\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scripts",
+      "item": [
+        {
+          "name": "Generate Script",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"anthropic/claude-3-haiku\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId/scripts/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId", "scripts", "generate"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            },
+            "description": "Generate script from project topic using LLM"
+          }
+        },
+        {
+          "name": "List Scripts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId/scripts",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId", "scripts"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Script",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/scripts/:scriptId",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", ":scriptId"],
+              "variable": [
+                {
+                  "key": "scriptId",
+                  "value": "{{scriptId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Script (Manual Edit)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated script content here...\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/scripts/:scriptId",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", ":scriptId"],
+              "variable": [
+                {
+                  "key": "scriptId",
+                  "value": "{{scriptId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quick Edit Tools",
+      "item": [
+        {
+          "name": "Shorten Script",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/scripts/:scriptId/edit/shorten",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", ":scriptId", "edit", "shorten"],
+              "variable": [
+                {
+                  "key": "scriptId",
+                  "value": "{{scriptId}}"
+                }
+              ]
+            },
+            "description": "Generate shortened version (target 70% length)"
+          }
+        },
+        {
+          "name": "Lengthen Script",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/scripts/:scriptId/edit/lengthen",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", ":scriptId", "edit", "lengthen"],
+              "variable": [
+                {
+                  "key": "scriptId",
+                  "value": "{{scriptId}}"
+                }
+              ]
+            },
+            "description": "Generate lengthened version (target 130% length)"
+          }
+        },
+        {
+          "name": "Rephrase Script",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/scripts/:scriptId/edit/rephrase",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", ":scriptId", "edit", "rephrase"],
+              "variable": [
+                {
+                  "key": "scriptId",
+                  "value": "{{scriptId}}"
+                }
+              ]
+            },
+            "description": "Generate more natural language variation"
+          }
+        },
+        {
+          "name": "Change Tone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tone\": \"Casual\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/scripts/:scriptId/edit/tone",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", ":scriptId", "edit", "tone"],
+              "variable": [
+                {
+                  "key": "scriptId",
+                  "value": "{{scriptId}}"
+                }
+              ]
+            },
+            "description": "Generate script with changed tone (Casual/Professional/Funny/Inspirational)"
+          }
+        },
+        {
+          "name": "Apply Preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preview_content\": \"Preview content from quick edit...\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/scripts/:scriptId/apply-preview",
+              "host": ["{{baseUrl}}"],
+              "path": ["scripts", ":scriptId", "apply-preview"],
+              "variable": [
+                {
+                  "key": "scriptId",
+                  "value": "{{scriptId}}"
+                }
+              ]
+            },
+            "description": "Apply preview version as new script version"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scenes",
+      "item": [
+        {
+          "name": "Get Scenes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId/scenes",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId", "scenes"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            },
+            "description": "Get all scenes for a project (ordered by order_index)"
+          }
+        },
+        {
+          "name": "Generate Scenes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId/scenes",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId", "scenes"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            },
+            "description": "Generate scenes from latest script (one-time operation)"
+          }
+        },
+        {
+          "name": "Get Scene",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/scenes/:sceneId",
+              "host": ["{{baseUrl}}"],
+              "path": ["scenes", ":sceneId"],
+              "variable": [
+                {
+                  "key": "sceneId",
+                  "value": "{{sceneId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Scene",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"duration_sec_draft\": 5,\n  \"primary_keyword\": \"ocean sunset\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/scenes/:sceneId",
+              "host": ["{{baseUrl}}"],
+              "path": ["scenes", ":sceneId"],
+              "variable": [
+                {
+                  "key": "sceneId",
+                  "value": "{{sceneId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Scene",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/scenes/:sceneId",
+              "host": ["{{baseUrl}}"],
+              "path": ["scenes", ":sceneId"],
+              "variable": [
+                {
+                  "key": "sceneId",
+                  "value": "{{sceneId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reorder Scenes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scene_ids\": [\"scene-1-id\", \"scene-3-id\", \"scene-2-id\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId/scenes/reorder",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId", "scenes", "reorder"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            },
+            "description": "Reorder scenes (drag-and-drop)"
+          }
+        },
+        {
+          "name": "Regenerate Scenes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/:projectId/scenes/regenerate",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", ":projectId", "scenes", "regenerate"],
+              "variable": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                }
+              ]
+            },
+            "description": "Regenerate scenes from latest script (overwrites existing)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reference Data",
+      "item": [
+        {
+          "name": "Get Subtitle Presets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subtitle-presets",
+              "host": ["{{baseUrl}}"],
+              "path": ["subtitle-presets"]
+            },
+            "description": "List all subtitle style presets"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import path from "path";
 import { ShortCreator } from "../short-creator/ShortCreator";
 import { APIRouter } from "./routers/rest";
 import { MCPRouter } from "./routers/mcp";
+import { EditorRouter } from "./routers/editor-router";
 import { logger } from "../logger";
 import { Config } from "../config";
 
@@ -19,6 +20,32 @@ export class Server {
     this.config = config;
     this.app = express();
 
+    // CORS middleware
+    this.app.use((req: ExpressRequest, res: ExpressResponse, next) => {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'http://localhost:3003',
+        'http://localhost:5173',
+      ];
+      const origin = req.headers.origin;
+
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+      }
+
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+      }
+
+      next();
+    });
+
     // add healthcheck endpoint
     this.app.get("/health", (req: ExpressRequest, res: ExpressResponse) => {
       res.status(200).json({ status: "ok" });
@@ -26,8 +53,10 @@ export class Server {
 
     const apiRouter = new APIRouter(config, shortCreator);
     const mcpRouter = new MCPRouter(shortCreator);
+    const editorRouter = new EditorRouter();
     this.app.use("/api", apiRouter.router);
     this.app.use("/mcp", mcpRouter.router);
+    this.app.use("/api/v1/editor", editorRouter.router);
 
     // Serve static files from the UI build
     this.app.use(express.static(path.join(__dirname, "../../dist/ui")));

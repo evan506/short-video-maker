@@ -2,6 +2,8 @@ node_modules
 dist
 .DS_Store
 .env
+.env.claude
+.mcp.json
 
 # Added by Spec Kitty CLI (auto-managed)
 .claude/
@@ -17,6 +19,19 @@ dist
 .amazonq/
 .github/copilot/
 
-.env.claude
+# Test artifacts
+playwright-report/
+test-results/
+test-failure.png
 
-.mcp.json
+# Debug files
+src/ui/* copy
+tests/e2e/debug-*.spec.ts
+
+# Manual test scripts
+scripts/
+tests/manual/
+
+# Temporary files
+*.bak
+*.bak2
