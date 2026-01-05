@@ -2,3 +2,21 @@ node_modules
 dist
 .DS_Store
 .env
+
+# Added by Spec Kitty CLI (auto-managed)
+.claude/
+.codex/
+.opencode/
+.windsurf/
+.gemini/
+.cursor/
+.qwen/
+.kilocode/
+.augment/
+.roo/
+.amazonq/
+.github/copilot/
+
+.env.claude
+
+.mcp.json
