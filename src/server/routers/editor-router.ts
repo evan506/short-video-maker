@@ -497,7 +497,7 @@ export class EditorRouter {
           }
 
           // Import scene service
-          const { generateScenes, scenesExist } = await import('../services/scene-service');
+          const { generateScenes, scenesExist, deleteScenes } = await import('../services/scene-service');
           const { getCurrentScript } = await import('../services/script-service');
 
           // Check if scenes already exist (one-time generation policy)
@@ -509,6 +509,12 @@ export class EditorRouter {
               error: 'Scenes already exist. Set force_regenerate=true to regenerate.',
               scenesAlreadyExist: true
             });
+          }
+
+          // If regenerating, delete existing scenes first
+          if (existingScenes && forceRegenerate) {
+            console.log(`[Editor] Deleting existing scenes for project ${projectId} before regeneration`);
+            await deleteScenes(projectId);
           }
 
           // Get current script for the project

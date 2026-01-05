@@ -25,19 +25,16 @@ import type {
 } from '../../types/editor';
 
 // API base URL configuration
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3123';
 const EDITOR_BASE_URL = `${API_URL}/api/v1/editor`;
 
 /**
  * Get auth token for API requests
- * TODO: Integrate with Supabase Auth
- * For now, returns null (auth middleware has mock user)
+ * Integrated with Supabase Auth
  */
 const getAuthToken = async (): Promise<string | null> => {
-  // TODO: Get token from Supabase Auth
-  // const { data } = await supabase.auth.getSession();
-  // return data.session?.access_token || null;
-  return null;
+  const { auth } = await import('./supabase');
+  return await auth.getAccessToken();
 };
 
 /**
@@ -65,7 +62,13 @@ const apiRequest = async (
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-    throw new Error(error.message || `API error: ${response.status}`);
+    console.error('API Error Details:', {
+      status: response.status,
+      statusText: response.statusText,
+      url,
+      error
+    });
+    throw new Error(error.error || error.message || `API error: ${response.status}`);
   }
 
   return response;
@@ -137,13 +140,21 @@ export const generateScript = async (
   params: {
     topic: string;
     platform: 'shorts' | 'tiktok' | 'reels';
-    target_duration: 15 | 30 | 60;
-    video_type: 'Explainer' | 'Marketing' | 'Tutorial' | 'Recipe' | 'Story';
+    targetDuration: 15 | 30 | 60;
+    videoType: 'Explainer' | 'Marketing' | 'Tutorial' | 'Recipe' | 'Story';
   }
 ): Promise<Script> => {
+  // Map camelCase to snake_case for server
+  const requestBody = {
+    topic: params.topic,
+    platform: params.platform,
+    target_duration: params.targetDuration,
+    video_type: params.videoType,
+  };
+
   const response = await apiRequest(`/projects/${projectId}/scripts/generate`, {
     method: 'POST',
-    body: JSON.stringify(params),
+    body: JSON.stringify(requestBody),
   });
   return response.json();
 };

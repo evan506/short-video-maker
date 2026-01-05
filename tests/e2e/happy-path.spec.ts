@@ -2,42 +2,70 @@
  * E2E Test: Happy Path Workflow
  *
  * Tests the complete user journey:
- * 1. Create Project
- * 2. Generate Script
- * 3. Quick Edit (Shorten)
- * 4. Generate Scenes
- * 5. Edit Scene Duration
- * 6. Verify Persistence (reload and verify all data)
+ * 1. Login
+ * 2. Create Project
+ * 3. Generate Script
+ * 4. Quick Edit (Shorten)
+ * 5. Generate Scenes
+ * 6. Edit Scene Duration
+ * 7. Verify Persistence (reload and verify all data)
  *
  * Prerequisites:
- * - Dev server running on http://localhost:5173
+ * - Dev server running on http://localhost:3001
  * - Supabase test database configured
- * - Test user credentials in .env.test
+ * - Test user exists: test@example.com / password123
+ *   (Create via Supabase Dashboard or Admin API before running tests)
  */
 
 import { test, expect } from '@playwright/test';
 
 // Test configuration
-const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
 const TEST_TIMEOUT = 60000; // 60 seconds
+
+// Test credentials (ensure this user exists in Supabase)
+const TEST_EMAIL = 'test@example.com';
+const TEST_PASSWORD = 'password123';
 
 test.describe('Happy Path Workflow', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to dashboard
-    await page.goto(BASE_URL);
+    // Navigate to login page first
+    await page.goto(`${BASE_URL}/login`);
+
+    // Fill in login credentials (MUI TextField uses input with label attribute)
+    await page.fill('input[type="email"]', TEST_EMAIL);
+    await page.fill('input[type="password"]', TEST_PASSWORD);
+
+    // Submit login form
+    await page.click('button[type="submit"]');
+
+    // Wait for navigation to dashboard after successful login
+    await page.waitForURL('**/', { timeout: 10000 });
   });
 
   test('complete workflow: create project → generate script → edit → generate scenes → verify persistence', async ({ page }) => {
     // Step 1: Create Project
     await test.step('Create new project', async () => {
-      // Click "New Project" button
-      await page.click('button:has-text("New Project")');
+      // Navigate directly to editor/new page
+      await page.goto(`${BASE_URL}/editor/new`);
 
       // Fill out project form
-      await page.fill('label:has-text("Topic")', 'Create a short video about the benefits of meditation for stress relief');
-      await page.selectOption('label:has-text("Platform")', 'shorts');
-      await page.selectOption('label:has-text("Video Type")', 'Explainer');
-      await page.selectOption('label:has-text("Target Duration")', '60');
+      await page.fill('textarea[placeholder*="Describe your video topic"]', 'Create a short video about the benefits of meditation for stress relief');
+
+      // Select Platform
+      await page.click('text=Platform');
+      await page.click('text=YouTube Shorts');
+      await page.keyboard.press('Escape'); // Close the dropdown
+
+      // Select Video Type
+      await page.click('text=Video Type');
+      await page.click('text=Explainer');
+      await page.keyboard.press('Escape');
+
+      // Select Target Duration
+      await page.click('text=Target Duration');
+      await page.click('text=60 seconds');
+      await page.keyboard.press('Escape');
 
       // Submit form
       await page.click('button:has-text("Create Project")');
@@ -161,10 +189,16 @@ test.describe('Happy Path Workflow', () => {
   test('quick-edit flow: generate script → shorten → apply → verify version created', async ({ page }) => {
     // Create a project first
     await page.goto(`${BASE_URL}/editor/new`);
-    await page.fill('label:has-text("Topic")', 'Test quick edit functionality with this topic');
-    await page.selectOption('label:has-text("Platform")', 'tiktok');
-    await page.selectOption('label:has-text("Video Type")', 'Marketing');
-    await page.selectOption('label:has-text("Target Duration")', '30');
+    await page.fill('textarea[placeholder*="Describe your video topic"]', 'Test quick edit functionality with this topic');
+    await page.click('text=Platform');
+    await page.click('text=TikTok');
+    await page.keyboard.press('Escape');
+    await page.click('text=Video Type');
+    await page.click('text=Marketing');
+    await page.keyboard.press('Escape');
+    await page.click('text=Target Duration');
+    await page.click('text=30 seconds');
+    await page.keyboard.press('Escape');
     await page.click('button:has-text("Create Project")');
 
     // Wait for editor to load
@@ -198,10 +232,16 @@ test.describe('Happy Path Workflow', () => {
   test('scene reordering: drag scene to new position → reload → verify order persists', async ({ page }) => {
     // Create project and generate scenes first
     await page.goto(`${BASE_URL}/editor/new`);
-    await page.fill('label:has-text("Topic")', 'Test scene reordering with multiple scenes about AI technology');
-    await page.selectOption('label:has-text("Platform")', 'reels');
-    await page.selectOption('label:has-text("Video Type")', 'Tutorial');
-    await page.selectOption('label:has-text("Target Duration")', '60');
+    await page.fill('textarea[placeholder*="Describe your video topic"]', 'Test scene reordering with multiple scenes about AI technology');
+    await page.click('text=Platform');
+    await page.click('text=Instagram Reels');
+    await page.keyboard.press('Escape');
+    await page.click('text=Video Type');
+    await page.click('text=Tutorial');
+    await page.keyboard.press('Escape');
+    await page.click('text=Target Duration');
+    await page.click('text=60 seconds');
+    await page.keyboard.press('Escape');
     await page.click('button:has-text("Create Project")');
 
     await expect(page).toHaveURL(/\/editor\/[a-f0-9-]+/);

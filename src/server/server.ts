@@ -20,6 +20,32 @@ export class Server {
     this.config = config;
     this.app = express();
 
+    // CORS middleware
+    this.app.use((req: ExpressRequest, res: ExpressResponse, next) => {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'http://localhost:3003',
+        'http://localhost:5173',
+      ];
+      const origin = req.headers.origin;
+
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+      }
+
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+      }
+
+      next();
+    });
+
     // add healthcheck endpoint
     this.app.get("/health", (req: ExpressRequest, res: ExpressResponse) => {
       res.status(200).json({ status: "ok" });

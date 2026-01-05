@@ -34,7 +34,6 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Grid,
-  LoadingButton,
 } from '@mui/material';
 import {
   ArrowForward as ArrowForwardIcon,
@@ -333,16 +332,16 @@ export const ScriptEditor: React.FC<ScriptEditorProps> = ({ projectId }) => {
 
               {/* Generate button */}
               <Grid item xs={12}>
-                <LoadingButton
+                <Button
                   variant="contained"
                   size="large"
                   fullWidth
                   onClick={handleGenerateScript}
-                  loading={isGenerating}
-                  disabled={!formData.topic || formData.topic.length < 10}
+                  disabled={isGenerating || !formData.topic || formData.topic.length < 10}
+                  startIcon={isGenerating ? <CircularProgress size={20} /> : null}
                 >
                   {isGenerating ? 'Generating Script...' : 'Generate Script'}
-                </LoadingButton>
+                </Button>
               </Grid>
             </Grid>
           </Box>
@@ -402,15 +401,14 @@ export const ScriptEditor: React.FC<ScriptEditorProps> = ({ projectId }) => {
             {/* T023: Edit mode actions */}
             {isEditing && (
               <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                <LoadingButton
+                <Button
                   variant="contained"
                   onClick={handleSaveEdit}
-                  loading={isCreating}
-                  disabled={editedContent.length < 50}
-                  startIcon={<CheckCircleIcon />}
+                  disabled={isCreating || editedContent.length < 50}
+                  startIcon={isCreating ? <CircularProgress size={20} /> : <CheckCircleIcon />}
                 >
                   Save as New Version
-                </LoadingButton>
+                </Button>
                 <Button
                   variant="outlined"
                   onClick={handleCancelEditing}
@@ -428,30 +426,30 @@ export const ScriptEditor: React.FC<ScriptEditorProps> = ({ projectId }) => {
                   Quick Edit Tools
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  <LoadingButton
+                  <Button
                     variant="outlined"
                     onClick={() => handleQuickEdit('shorten')}
-                    loading={isQuickEditing}
-                    disabled={isAnyLoading}
+                    disabled={isQuickEditing || isAnyLoading}
+                    startIcon={isQuickEditing ? <CircularProgress size={16} /> : null}
                   >
                     Shorten
-                  </LoadingButton>
-                  <LoadingButton
+                  </Button>
+                  <Button
                     variant="outlined"
                     onClick={() => handleQuickEdit('lengthen')}
-                    loading={isQuickEditing}
-                    disabled={isAnyLoading}
+                    disabled={isQuickEditing || isAnyLoading}
+                    startIcon={isQuickEditing ? <CircularProgress size={16} /> : null}
                   >
                     Lengthen
-                  </LoadingButton>
-                  <LoadingButton
+                  </Button>
+                  <Button
                     variant="outlined"
                     onClick={() => handleQuickEdit('rephrase')}
-                    loading={isQuickEditing}
-                    disabled={isAnyLoading}
+                    disabled={isQuickEditing || isAnyLoading}
+                    startIcon={isQuickEditing ? <CircularProgress size={16} /> : null}
                   >
                     Rephrase
-                  </LoadingButton>
+                  </Button>
                   <Select
                     size="small"
                     defaultValue=""
@@ -606,13 +604,14 @@ export const ScriptEditor: React.FC<ScriptEditorProps> = ({ projectId }) => {
           <Button onClick={() => setPreviewOpen(false)} disabled={isCreating}>
             Cancel
           </Button>
-          <LoadingButton
+          <Button
             variant="contained"
             onClick={handleApplyPreview}
-            loading={isCreating}
+            disabled={isCreating}
+            startIcon={isCreating ? <CircularProgress size={20} /> : null}
           >
             Apply
-          </LoadingButton>
+          </Button>
         </DialogActions>
       </Dialog>
 

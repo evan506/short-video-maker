@@ -9,7 +9,33 @@
  * - T060: Delete project (deferred to Phase 2)
  */
 
-import { supabase } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { supabase as adminClient } from '../lib/supabase';
+
+/**
+ * Create a Supabase client with user context for RLS
+ */
+function createClientForUser(userToken: string) {
+  const supabaseUrl = process.env.SUPABASE_URL!;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY!;
+
+  const client = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+    db: {
+      schema: 'public',
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    },
+  });
+
+  return client;
+}
 
 // Types
 export interface Project {
@@ -94,6 +120,7 @@ function generateTitleFromTopic(topic: string): string {
  * - Set initial status="draft"
  * - Set current_script_version=null, storyboard_script_version=null
  * - Validate: topic min 10 chars, platform/type/duration required
+ * - Use service role to bypass RLS (user_id is provided from auth middleware)
  */
 export async function createProject(input: CreateProjectInput): Promise<Project> {
   // Validation
@@ -107,7 +134,9 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
   // Auto-generate title (T068)
   const title = generateTitleFromTopic(input.topic);
 
-  const { data, error } = await supabase
+  // Use admin client (service role) which bypasses RLS
+  // user_id is already validated by auth middleware
+  const { data, error } = await adminClient
     .from('projects')
     .insert({
       user_id: input.user_id,
@@ -133,10 +162,10 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
 /**
  * List user's projects (T057)
  * - Sorted by updated_at DESC (most recently modified first)
- * - Enforce RLS (user_id = auth.uid())
+ * - Use admin client with explicit user_id filter
  */
 export async function listProjects(userId: string): Promise<Project[]> {
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from('projects')
     .select('*')
     .eq('user_id', userId)
@@ -160,12 +189,12 @@ export async function getProjectWithFullState(
   projectId: string,
   userId: string
 ): Promise<ProjectWithScript> {
-  // Fetch project
-  const { data: project, error: projectError } = await supabase
+  // Fetch project using admin client with explicit user_id filter
+  const { data: project, error: projectError } = await adminClient
     .from('projects')
     .select('*')
     .eq('id', projectId)
-    .eq('user_id', userId) // RLS enforcement
+    .eq('user_id', userId)
     .single();
 
   if (projectError || !project) {
@@ -175,7 +204,7 @@ export async function getProjectWithFullState(
   // Fetch current script version
   let script = null;
   if (project.current_script_version) {
-    const { data: scriptData, error: scriptError } = await supabase
+    const { data: scriptData, error: scriptError } = await adminClient
       .from('scripts')
       .select('*')
       .eq('project_id', projectId)
@@ -188,7 +217,7 @@ export async function getProjectWithFullState(
   }
 
   // Fetch scenes ordered by order_index
-  const { data: scenes, error: scenesError } = await supabase
+  const { data: scenes, error: scenesError } = await adminClient
     .from('scenes')
     .select('*')
     .eq('project_id', projectId)
@@ -229,11 +258,11 @@ export async function updateProject(
   if (updates.video_type !== undefined) updateData.video_type = updates.video_type;
   if (updates.target_duration !== undefined) updateData.target_duration = updates.target_duration;
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from('projects')
     .update(updateData)
     .eq('id', projectId)
-    .eq('user_id', userId) // RLS enforcement
+    .eq('user_id', userId)
     .select()
     .single();
 

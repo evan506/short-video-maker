@@ -7,6 +7,7 @@
 
 import { generateScenes as generateScenesUtil } from '../../lib/scene-utils';
 import { supabase } from '../lib/supabase';
+import { extractKeywordsForScenes } from './llm-service';
 
 export interface GenerateScenesParams {
   projectId: string;
@@ -33,8 +34,9 @@ export interface Scene {
  *
  * This function:
  * 1. Generates scenes from script using scene-utils
- * 2. Saves scenes to database with order_index
- * 3. Updates project's storyboard_script_version
+ * 2. Extracts meaningful keywords using LLM
+ * 3. Saves scenes to database with order_index
+ * 4. Updates project's storyboard_script_version
  */
 export async function generateScenes(params: GenerateScenesParams): Promise<Scene[]> {
   const { projectId, scriptContent, scriptVersion, maxScenes = 20 } = params;
@@ -51,13 +53,26 @@ export async function generateScenes(params: GenerateScenesParams): Promise<Scen
     throw new Error('Failed to generate scenes from script');
   }
 
-  // Prepare scenes for insertion with order_index and default subtitle preset
+  // Extract keywords using LLM
+  console.log(`[Scene Service] Extracting keywords for ${sceneDrafts.length} scenes using LLM...`);
+  let keywords: string[];
+
+  try {
+    keywords = await extractKeywordsForScenes(sceneDrafts);
+    console.log(`[Scene Service] LLM keywords extracted successfully:`, keywords);
+  } catch (error) {
+    console.error('[Scene Service] LLM keyword extraction failed, using fallback:', error);
+    // Use rule-based keywords from scene-utils as fallback
+    keywords = sceneDrafts.map(draft => draft.primary_keyword);
+  }
+
+  // Prepare scenes for insertion with LLM-extracted keywords
   const scenesToInsert = sceneDrafts.map((draft, index) => ({
     project_id: projectId,
     order_index: index,
     narration_text: draft.narration_text,
     duration_sec_draft: draft.duration_sec_draft,
-    primary_keyword: draft.primary_keyword,
+    primary_keyword: keywords[index] || draft.primary_keyword, // Use LLM keyword or fallback
     subtitle_style_preset_id: 1 // Default to "Minimal" preset
   }));
 

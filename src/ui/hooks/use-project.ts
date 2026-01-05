@@ -9,6 +9,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { auth } from '../services/supabase';
 
 // Types
 export interface Project {
@@ -74,9 +75,17 @@ export function useCreateProject() {
 
   return useMutation({
     mutationFn: async (input: CreateProjectInput) => {
+      const token = await auth.getAccessToken();
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
       const response = await fetch(`${API_BASE}/projects`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify(input),
       });
 
@@ -103,7 +112,16 @@ export function useProjects() {
   return useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/projects`);
+      const token = await auth.getAccessToken();
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch(`${API_BASE}/projects`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -128,7 +146,16 @@ export function useProject(projectId: string) {
   return useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/projects/${projectId}`);
+      const token = await auth.getAccessToken();
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch(`${API_BASE}/projects/${projectId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -151,9 +178,17 @@ export function useUpdateProject() {
 
   return useMutation({
     mutationFn: async ({ projectId, updates }: { projectId: string; updates: UpdateProjectInput }) => {
+      const token = await auth.getAccessToken();
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
       const response = await fetch(`${API_BASE}/projects/${projectId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify(updates),
       });
 

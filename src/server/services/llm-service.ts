@@ -102,6 +102,91 @@ Return the rewritten script as plain text without markdown formatting.`;
 }
 
 /**
+ * Extract keywords for multiple scenes using LLM
+ *
+ * Analyzes each scene's narration text to extract meaningful keywords
+ * that represent the core subject, action, or theme.
+ *
+ * @param scenes - Array of scene objects with narration_text
+ * @returns Array of keywords in the same order as input scenes
+ */
+export async function extractKeywordsForScenes(scenes: Array<{ narration_text: string }>): Promise<string[]> {
+  if (!scenes || scenes.length === 0) {
+    return [];
+  }
+
+  // Build prompt with all scenes
+  const scenesText = scenes.map((scene, index) => {
+    return `${index + 1}. "${scene.narration_text}"`;
+  }).join('\n');
+
+  const prompt = `Analyze the following video scene narrations and extract a meaningful primary keyword for each scene.
+
+${scenesText}
+
+For each scene, identify:
+- The main subject, object, action, or theme
+- Use 1-3 words that best represent what the scene is about
+- Focus on visual elements or key concepts (not connecting words like "the", "a", "want", "let", etc.)
+
+Example:
+- "Want a perfectly cooked steak quickly" → "perfectly cooked steak"
+- "Let it rest to redistribute the juices" → "rest steak" or "redistribute juices"
+- "Heat a skillet on high and add high-smoke-point oil" → "heat skillet" or "hot pan"
+
+Return ONLY a comma-separated list of keywords, one per scene, in the same order as the scenes above.
+Format: keyword1, keyword2, keyword3, ...`;
+
+  try {
+    const response = await callLLM_API(prompt, 'extractKeywordsForScenes');
+
+    // Parse the response (comma-separated keywords)
+    const keywordsText = response.content.trim();
+    const keywords = keywordsText.split(',').map(k => k.trim()).filter(k => k.length > 0);
+
+    // Ensure we have the same number of keywords as scenes
+    if (keywords.length !== scenes.length) {
+      console.warn(`[LLM Service] Expected ${scenes.length} keywords, got ${keywords.length}. Using fallback.`);
+      return scenes.map(scene => extractFallbackKeyword(scene.narration_text));
+    }
+
+    return keywords;
+  } catch (error) {
+    console.error('[LLM Service] Failed to extract keywords, using fallback:', error);
+    return scenes.map(scene => extractFallbackKeyword(scene.narration_text));
+  }
+}
+
+/**
+ * Fallback keyword extraction (rule-based)
+ *
+ * Used when LLM fails or is unavailable.
+ * Extracts meaningful nouns from the text.
+ */
+function extractFallbackKeyword(text: string): string {
+  if (!text || text.trim().length === 0) {
+    return 'scene';
+  }
+
+  const words = text.trim().split(/\s+/);
+
+  // Try to find the first word that's likely a noun (length > 3, not a common stop word)
+  const stopWords = new Set(['want', 'let', 'get', 'make', 'take', 'this', 'that', 'with', 'from', 'have', 'will']);
+
+  const meaningfulWords = words.filter(word =>
+    word.length > 3 && !stopWords.has(word.toLowerCase())
+  );
+
+  if (meaningfulWords.length > 0) {
+    // Return first 2 meaningful words
+    return meaningfulWords.slice(0, 2).join(' ');
+  }
+
+  // Last resort: return first word if it's > 2 chars
+  return words[0].length > 2 ? words[0] : 'scene';
+}
+
+/**
  * Build prompt for script generation from topic
  */
 function buildGenerateScriptPrompt(params: {

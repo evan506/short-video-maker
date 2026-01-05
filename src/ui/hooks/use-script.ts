@@ -15,8 +15,8 @@ interface GenerateScriptParams {
   projectId: string;
   topic: string;
   platform: 'shorts' | 'tiktok' | 'reels';
-  target_duration: 15 | 30 | 60;
-  video_type: 'Explainer' | 'Marketing' | 'Tutorial' | 'Recipe' | 'Story';
+  targetDuration: 15 | 30 | 60;
+  videoType: 'Explainer' | 'Marketing' | 'Tutorial' | 'Recipe' | 'Story';
 }
 
 interface QuickEditParams {
@@ -49,8 +49,8 @@ export const useScript = (projectId: string) => {
       editorApi.generateScript(params.projectId, {
         topic: params.topic,
         platform: params.platform,
-        target_duration: params.target_duration,
-        video_type: params.video_type,
+        targetDuration: params.targetDuration,
+        videoType: params.videoType,
       }),
     onSuccess: (newScript) => {
       // Invalidate and refetch scripts

@@ -31,23 +31,23 @@ interface ReorderScenesParams {
 }
 
 // API base URL
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3123';
 
 /**
  * Get API fetcher with auth header
  */
 async function fetchWithAuth(url: string, options?: RequestInit) {
-  // Get Supabase session token
-  // TODO: Replace with actual Supabase auth token retrieval
-  const token = localStorage.getItem('sb-access-token') || '';
+  // Get Supabase session token using the same method as editor-api
+  const { auth } = await import('../services/supabase');
+  const token = await auth.getAccessToken();
 
-  const headers = {
+  const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` }),
     ...options?.headers
   };
 
-  return fetch(`${API_URL}${url}`, {
+  return fetch(`${API_URL}/api/v1/editor${url}`, {
     ...options,
     headers
   });
@@ -60,7 +60,7 @@ export function useScenes(projectId: string) {
   return useQuery({
     queryKey: ['scenes', projectId],
     queryFn: async () => {
-      const response = await fetchWithAuth(`/api/v1/editor/projects/${projectId}/scenes`);
+      const response = await fetchWithAuth(`/projects/${projectId}/scenes`);
       if (!response.ok) {
         throw new Error('Failed to fetch scenes');
       }
@@ -82,7 +82,7 @@ export function useGenerateScenes() {
 
   return useMutation({
     mutationFn: async ({ projectId, forceRegenerate = false }: GenerateScenesParams) => {
-      const response = await fetchWithAuth(`/api/v1/editor/projects/${projectId}/scenes/generate`, {
+      const response = await fetchWithAuth(`/projects/${projectId}/scenes/generate`, {
         method: 'POST',
         body: JSON.stringify({ force_regenerate: forceRegenerate })
       });
@@ -111,7 +111,7 @@ export function useDeleteScenes() {
 
   return useMutation({
     mutationFn: async (projectId: string) => {
-      const response = await fetchWithAuth(`/api/v1/editor/projects/${projectId}/scenes`, {
+      const response = await fetchWithAuth(`/projects/${projectId}/scenes`, {
         method: 'DELETE'
       });
 
@@ -136,7 +136,7 @@ export function useReorderScenes() {
 
   return useMutation({
     mutationFn: async ({ projectId, sceneIds }: ReorderScenesParams) => {
-      const response = await fetchWithAuth(`/api/v1/editor/projects/${projectId}/scenes/reorder`, {
+      const response = await fetchWithAuth(`/projects/${projectId}/scenes/reorder`, {
         method: 'POST',
         body: JSON.stringify({ scene_ids: sceneIds })
       });
@@ -164,7 +164,7 @@ export function useUpdateScene() {
 
   return useMutation({
     mutationFn: async ({ sceneId, updates }: { sceneId: string; updates: Partial<Scene> }) => {
-      const response = await fetchWithAuth(`/api/v1/editor/scenes/${sceneId}`, {
+      const response = await fetchWithAuth(`/scenes/${sceneId}`, {
         method: 'PATCH',
         body: JSON.stringify(updates)
       });
@@ -224,7 +224,7 @@ export function useBatchUpdateScenes() {
 
   return useMutation({
     mutationFn: async ({ sceneIds, updates }: { sceneIds: string[]; updates: Partial<Scene> }) => {
-      const response = await fetchWithAuth('/api/v1/editor/scenes/batch', {
+      const response = await fetchWithAuth('/scenes/batch', {
         method: 'PATCH',
         body: JSON.stringify({ scene_ids: sceneIds, updates })
       });
@@ -283,7 +283,7 @@ export function useVersionMismatch(projectId: string) {
     queryKey: ['version-mismatch', projectId],
     queryFn: async () => {
       // Get project data
-      const response = await fetchWithAuth(`/api/v1/editor/projects/${projectId}`);
+      const response = await fetchWithAuth(`/projects/${projectId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch project');
       }
