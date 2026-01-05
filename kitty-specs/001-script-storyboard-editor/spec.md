@@ -5,6 +5,24 @@
 **Status**: Draft
 **Input**: Phase 1: Topic -> script auto-generation (<=60s goal) -> storyboard scene cards (create/edit). The feature will: 1) Accept topic input with options (platform, target duration, video type), 2) Auto-generate script using LLM with quick edit capabilities (Shorten/Lengthen/Rephrase/Change Tone), 3) Generate storyboard scenes (one-time split with auto-merge if >20 scenes for 60s), 4) Allow scene card editing (duration, keywords, subtitle presets), 5) Data persistence and reload. Out of scope: Media fetching/providers, TTS/voice synthesis, rendering/job queue implementation. PRD source: docs/AutoShorts_PRD.md
 
+## Clarifications
+
+### Session 2025-01-06
+
+- Q: Should scene keyword extraction be LLM-based (analyzing scene narration for meaningful keywords like "perfectly cooked steak") or rule-based (first noun phrase/capitalized words)? → A: LLM-based with rule-based fallback (current implementation)
+- Q: What authentication mechanism should the spec document for user identity and access control? → A: Supabase Auth with JWT tokens (current implementation)
+- Q: If a user has the same project open in multiple browser tabs and makes concurrent edits, what should happen? → A: Last write wins (most recent save overwrites earlier changes)
+- Q: Should there be a maximum number of script versions retained per project to prevent database bloat? → A: No limit (keep all versions forever)
+- Q: When a user manually edits a script, what should make it invalid and prevent save? → A: Only empty/whitespace-only scripts
+- Q: Should there be a maximum number of projects a user can create? → A: No limit (unrestricted)
+- Q: If a user accidentally deletes all script text (making it empty), what happens? → A: Prevent save with error "Script cannot be empty"
+
+### Implementation Details Confirmed
+
+- **API Route Structure**: All editor endpoints use `/api/v1/editor` prefix
+- **LLM Integration**: OpenRouter API with 60-second timeout, retry logic (max 3 attempts with exponential backoff), and fallback mechanisms
+- **Authentication**: Supabase Auth service with JWT token validation, session management via `getAccessToken()`, and protected route middleware
+
 ## User Scenarios & Testing
 
 ### User Story 1 - Topic to Script Generation (Priority: P1)
@@ -133,7 +151,7 @@ The system defines state models for tracking async operations and recovery workf
   - System displays banner "Script length changed. Current scene count may be insufficient for new duration. Recommend regenerating scenes." with "Regenerate" and "Keep current" options
 
 - What happens when keyword generation fails for a scene?
-  - System falls back to using the project topic as keyword, or extracts the first noun phrase from the scene's narration text using simple NLP rules
+  - System uses LLM-based keyword extraction as the primary method to extract meaningful keywords from scene narration text (e.g., "perfectly cooked steak" from "Want a perfectly cooked steak quickly"). If LLM extraction fails, the system falls back to rule-based extraction: project topic as keyword, or extracts first meaningful noun phrase (excluding stop words like "want", "let", "get") from scene narration text using simple NLP rules
 
 - What happens when multiple script versions exist and creator clicks "Regenerate scenes"?
   - System generates from the LATEST script version, updates `storyboard_script_version` to match, and discards previous scenes
@@ -148,6 +166,12 @@ The system defines state models for tracking async operations and recovery workf
 
 - What happens when all scenes are deleted manually (if that action exists)?
   - System prevents deletion of last scene, showing error "At least one scene is required" or offers "Regenerate all scenes" button
+
+- What happens when a user has the same project open in multiple browser tabs and makes concurrent edits?
+  - System uses "last write wins" strategy (most recent save overwrites earlier changes) without conflict detection or merging
+
+- What happens when a user manually edits a script to make it empty or only whitespace?
+  - System prevents save with validation error "Script cannot be empty" and requires user to add content before saving
 
 ## Requirements
 
@@ -173,8 +197,9 @@ The system defines state models for tracking async operations and recovery workf
 - **FR-015**: System MUST require user confirmation ("Apply") to save edited version
 - **FR-016**: System MUST increment script version number for each applied edit (v1 -> v2 -> v3)
 - **FR-017**: System MUST provide textarea for manual script editing
-- **FR-018**: System MUST save manual edits with source="user" (distinct from source="llm")
-- **FR-019**: System MUST maintain version history showing all script versions with timestamps and source types
+- **FR-018-A**: System MUST validate manual script edits and reject empty or whitespace-only scripts with error message "Script cannot be empty"
+- **FR-018-B**: System MUST save manual edits with source="user" (distinct from source="llm")
+- **FR-019**: System MUST maintain version history showing all script versions with timestamps and source types (no maximum limit on versions retained)
 - **FR-020**: System MUST allow restoring any previous script version from history
 - **FR-021**: System MUST display "Go to Storyboard" CTA after script is applied
 
@@ -184,6 +209,7 @@ The system defines state models for tracking async operations and recovery workf
 - **FR-024**: System MUST save storyboard script version reference equal to current script version when scenes are generated
 - **FR-025**: System MUST split script into scenes with target duration of 2-6 seconds per scene (normal density preset)
 - **FR-026**: System MUST assign each scene: narration text, draft duration, primary keyword, order position
+- **FR-026-A**: System MUST extract primary keywords using LLM-based analysis that identifies meaningful phrases from scene narration text (e.g., "perfectly cooked steak", "sear steak", "rest steak" instead of generic words like "want", "let"). If LLM extraction fails, system MUST fall back to rule-based extraction using first meaningful noun phrase (excluding stop words)
 - **FR-027**: System MUST auto-merge scenes if total exceeds 20 scenes for a 60-second video
 - **FR-028**: System MUST merge scenes with duration < 2 seconds by combining with adjacent scene
 - **FR-029**: System MUST combine narration text with spaces when merging scenes
@@ -211,7 +237,7 @@ The system defines state models for tracking async operations and recovery workf
 - **FR-046**: System MUST display visual confirmation after saving scene changes
 
 **Project Persistence**
-- **FR-047**: System MUST create project record with: unique identifier, owner reference, title, topic, platform, video type, target duration, status="draft", creation timestamp, last modified timestamp
+- **FR-047**: System MUST create project record with: unique identifier, owner reference, title, topic, platform, video type, target duration, status="draft", creation timestamp, last modified timestamp (no maximum limit on number of projects per user)
 - **FR-048**: System MUST save project with reference to latest script version
 - **FR-049**: System MUST initialize storyboard script version as null until scenes are generated
 - **FR-050**: System MUST display project dashboard showing all user's projects sorted by last modified descending
@@ -220,6 +246,20 @@ The system defines state models for tracking async operations and recovery workf
 - **FR-053**: System MUST load all scenes with current state when project is opened
 - **FR-054**: System MUST preserve all changes across browser sessions
 - **FR-055**: System MUST enforce user data isolation ensuring users can only access their own projects
+
+**Authentication & Security**
+- **FR-055-A**: System MUST use Supabase Auth service for user authentication with JWT tokens
+- **FR-055-B**: System MUST validate JWT tokens on all `/api/v1/editor/*` endpoints using authentication middleware
+- **FR-055-C**: System MUST extract user identity (user_id, email) from validated JWT token and attach to request context
+- **FR-055-D**: System MUST return 401 Unauthorized for requests with missing, invalid, or expired JWT tokens
+- **FR-055-E**: System MUST use `getAccessToken()` method to retrieve current session token from Supabase auth client
+- **FR-055-F**: System MUST enforce Row-Level Security (RLS) ensuring users can only access their own projects, scripts, and scenes
+
+**API & External Integrations**
+- **FR-056**: All editor API endpoints MUST use `/api/v1/editor` route prefix
+- **FR-057**: System MUST integrate with OpenRouter API for LLM services with 60-second timeout
+- **FR-058**: System MUST implement retry logic for LLM API calls with max 3 attempts and exponential backoff (1s, 2s, 4s delays)
+- **FR-059**: System MUST handle LLM API failures gracefully with user-friendly error messages and retry options
 
 **Progress/Recovery State Model (Spec Only - Phase 2)**
 
@@ -236,17 +276,43 @@ The system defines state models for tracking async operations and recovery workf
 
 ### Key Entities
 
+**User** (Supabase Auth)
+- Represents an authenticated user with Supabase Auth
+- Attributes: unique identifier (user_id), email address, phone (optional), email verified flag, metadata (provider, preferences)
+- Authentication: JWT tokens issued by Supabase Auth, validated on each API request
+
 **Project**
 - Represents a video creation project with topic, configuration, and current status
-- Attributes: unique identifier, owner reference, title (derived from topic or user-defined), topic (input text), platform selection (shorts/tiktok/reels), video type (Explainer/Marketing/Tutorial/Recipe/Story), target duration in seconds (15/30/60, max 60), reference to latest script version, reference to storyboard script version (used to generate scenes, null until scenes created), current status (draft/rendering/done/failed), creation timestamp, last modified timestamp
+- Attributes: unique identifier, owner reference (user_id foreign key with RLS), title (derived from topic or user-defined), topic (input text), platform selection (shorts/tiktok/reels), video type (Explainer/Marketing/Tutorial/Recipe/Story), target duration in seconds (15/30/60, max 60), reference to latest script version, reference to storyboard script version (used to generate scenes, null until scenes created), current status (draft/rendering/done/failed), creation timestamp, last modified timestamp
 
 **Script**
 - Represents a versioned narration script for a project
-- Attributes: unique identifier, reference to owning project, version number (incrementing integer starting at 1), content (full narration text), source (llm/user indicating generation method), creation timestamp
+- Attributes: unique identifier, reference to owning project (project_id foreign key with RLS), version number (incrementing integer starting at 1), content (full narration text), source (llm/user indicating generation method), creation timestamp
 
 **Scene**
 - Represents a single visual scene within a storyboard
-- Attributes: unique identifier, reference to owning project, position/order in storyboard, narration text (script segment for this scene), draft duration in seconds (user-editable), final duration in seconds (determined after TTS, null in Phase 1), primary keyword (search term for media matching), subtitle style preset reference, creation timestamp, last modified timestamp
+- Attributes: unique identifier, reference to owning project (project_id foreign key with RLS), position/order in storyboard (order_index), narration text (script segment for this scene), draft duration in seconds (user-editable, duration_sec_draft), final duration in seconds (determined after TTS, null in Phase 1, duration_sec_final), primary keyword (search term for media matching, extracted via LLM with rule-based fallback), subtitle style preset reference (subtitle_style_preset_id), creation timestamp, last modified timestamp
+
+**API Routes**
+- Base prefix: `/api/v1/editor`
+- All routes protected by Supabase Auth middleware (JWT validation)
+- Key endpoints:
+  - `POST /api/v1/editor/projects` - Create project
+  - `GET /api/v1/editor/projects` - List user's projects
+  - `GET /api/v1/editor/projects/:projectId` - Get project with script and scenes
+  - `PATCH /api/v1/editor/projects/:projectId` - Update project metadata
+  - `DELETE /api/v1/editor/projects/:projectId` - Delete project (Phase 2)
+  - `POST /api/v1/editor/projects/:projectId/scripts/generate` - Generate script via LLM
+  - `GET /api/v1/editor/projects/:projectId/scripts` - List script versions
+  - `POST /api/v1/editor/scripts` - Create/save manual script
+  - `POST /api/v1/editor/scripts/:scriptId/edit/:operation` - Quick edit script
+  - `POST /api/v1/editor/scripts/:scriptId/restore` - Restore script version
+  - `POST /api/v1/editor/projects/:projectId/scenes/generate` - Generate scenes from script
+  - `GET /api/v1/editor/projects/:projectId/scenes` - List scenes
+  - `DELETE /api/v1/editor/projects/:projectId/scenes` - Delete all scenes
+  - `PATCH /api/v1/editor/scenes/:sceneId` - Update single scene
+  - `PATCH /api/v1/editor/scenes/batch` - Batch update scenes
+  - `POST /api/v1/editor/projects/:projectId/scenes/reorder` - Reorder scenes
 
 **RenderJob** (Spec Only - Phase 2)
 - Represents an async rendering job with state tracking

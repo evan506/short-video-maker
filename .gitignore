@@ -4,3 +4,20 @@ dist
 .env
 .env.claude
 .mcp.json
+
+# Test artifacts
+playwright-report/
+test-results/
+test-failure.png
+
+# Debug files
+src/ui/* copy
+tests/e2e/debug-*.spec.ts
+
+# Manual test scripts
+scripts/
+tests/manual/
+
+# Temporary files
+*.bak
+*.bak2

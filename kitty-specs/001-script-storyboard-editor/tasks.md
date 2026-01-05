@@ -18,16 +18,16 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 **Independent Test**: Verify database tables exist with RLS policies, backend routes return 401 without auth, frontend routes navigate correctly
 
 **Included Subtasks**:
-- [ ] T001: Create Supabase migration for `projects` table with RLS policies
-- [ ] T002: Create Supabase migration for `scripts` table with RLS policies
-- [ ] T003: Create Supabase migration for `scenes` table with RLS policies
-- [ ] T004: Create Supabase migration for `subtitle_presets` table with seed data
-- [ ] T005: Create TypeScript types in `src/types/editor.ts`
-- [ ] T006: Create Zod validators in `src/server/validators/editor-validators.ts`
-- [ ] T007: Extend Express router with `/api/v1/editor/*` endpoints scaffold
-- [ ] T008: Add frontend routes `/editor/new` and `/editor/:projectId` to React Router
-- [ ] T009: Create TanStack Query setup and API client in `src/ui/services/editor-api.ts`
-- [ ] T010: Create Supabase auth middleware for backend routes
+- [x] T001: Create Supabase migration for `projects` table with RLS policies
+- [x] T002: Create Supabase migration for `scripts` table with RLS policies
+- [x] T003: Create Supabase migration for `scenes` table with RLS policies
+- [x] T004: Create Supabase migration for `subtitle_presets` table with seed data
+- [x] T005: Create TypeScript types in `src/types/editor.ts`
+- [x] T006: Create Zod validators in `src/server/validators/editor-validators.ts`
+- [x] T007: Extend Express router with `/api/v1/editor/*` endpoints scaffold
+- [x] T008: Add frontend routes `/editor/new` and `/editor/:projectId` to React Router
+- [x] T009: Create TanStack Query setup and API client in `src/ui/services/editor-api.ts`
+- [x] T010: Create Supabase auth middleware for backend routes
 
 **Implementation Sketch**:
 1. Run `supabase migration new` for each table, write SQL schema per data-model.md
@@ -63,23 +63,23 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 **Independent Test**: User enters topic, generates script in <60s, applies quick-edit (Shorten), and verifies new version created
 
 **Included Subtasks**:
-- [ ] T011: Create `src/server/services/llm-service.ts` with OpenRouter API integration
-- [ ] T012: Implement script generation prompt template (topic → narration script)
-- [ ] T013: Implement prompt templates for quick-edit operations (Shorten, Lengthen, Rephrase, Change Tone)
-- [ ] T014: Create `POST /api/v1/editor/projects/:projectId/scripts/generate` endpoint
-- [ ] T015: Create `POST /api/v1/editor/scripts/:scriptId/edit/{operation}` endpoints
-- [ ] T016: Create `POST /api/v1/editor/scripts` endpoint (manual save/new version)
-- [ ] T017: Create `GET /api/v1/editor/projects/:projectId/scripts` endpoint (version history)
-- [ ] T018: Create `POST /api/v1/editor/scripts/:scriptId/restore` endpoint
-- [ ] T019: Create `src/ui/components/editor/ScriptEditor.tsx` component
-- [ ] T020: Implement topic input form with platform/duration/type selectors
-- [ ] T021: Implement script display area with version history sidebar
-- [ ] T022: Implement quick-edit buttons (Shorten, Lengthen, Rephrase, Change Tone) with preview modal
-- [ ] T023: Implement manual script editing textarea with version comparison
-- [ ] T024: Implement loading states for LLM operations (spinners, progress indicators)
-- [ ] T025: Implement error handling with retry buttons and user-friendly messages
-- [ ] T026: Create `src/ui/hooks/use-script.ts` for script CRUD operations
-- [ ] T027: Add "Go to Storyboard" CTA button after script applied
+- [x] T011: Create `src/server/services/llm-service.ts` with OpenRouter API integration
+- [x] T012: Implement script generation prompt template (topic → narration script)
+- [x] T013: Implement prompt templates for quick-edit operations (Shorten, Lengthen, Rephrase, Change Tone)
+- [x] T014: Create `POST /api/v1/editor/projects/:projectId/scripts/generate` endpoint
+- [x] T015: Create `POST /api/v1/editor/scripts/:scriptId/edit/{operation}` endpoints
+- [x] T016: Create `POST /api/v1/editor/scripts` endpoint (manual save/new version)
+- [x] T017: Create `GET /api/v1/editor/projects/:projectId/scripts` endpoint (version history)
+- [x] T018: Create `POST /api/v1/editor/scripts/:scriptId/restore` endpoint
+- [x] T019: Create `src/ui/components/editor/ScriptEditor.tsx` component
+- [x] T020: Implement topic input form with platform/duration/type selectors
+- [x] T021: Implement script display area with version history sidebar
+- [x] T022: Implement quick-edit buttons (Shorten, Lengthen, Rephrase, Change Tone) with preview modal
+- [x] T023: Implement manual script editing textarea with version comparison
+- [x] T024: Implement loading states for LLM operations (spinners, progress indicators)
+- [x] T025: Implement error handling with retry buttons and user-friendly messages
+- [x] T026: Create `src/ui/hooks/use-script.ts` for script CRUD operations
+- [x] T027: Add "Go to Storyboard" CTA button after script applied
 
 **Implementation Sketch**:
 1. Implement OpenRouter API client in llm-service.ts with timeout (60s) and retry logic (3 attempts)
@@ -117,21 +117,21 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 **Independent Test**: User generates script, clicks "Go to Storyboard", verifies 10-15 scenes created with proper narration/duration/keywords, reloads page and confirms scenes persist (one-time generation)
 
 **Included Subtasks**:
-- [ ] T028: Create `src/lib/scene-utils.ts` with sentence tokenization utility
-- [ ] T029: Implement scene splitting algorithm (group sentences into 2-6 second scenes)
-- [ ] T030: Implement keyword extraction from scene narration (simple NLP)
-- [ ] T031: Implement scene merging algorithm (greedy merge if >20 scenes)
-- [ ] T032: Create `src/server/services/scene-service.ts` with scene generation logic
-- [ ] T033: Create `POST /api/v1/editor/projects/:projectId/scenes/generate` endpoint
-- [ ] T034: Create `GET /api/v1/editor/projects/:projectId/scenes` endpoint
-- [ ] T035: Create `DELETE /api/v1/editor/projects/:projectId/scenes` endpoint (regenerate)
-- [ ] T036: Update `PATCH /api/v1/editor/projects/:projectId` to set `storyboard_script_version`
-- [ ] T037: Create `src/ui/components/editor/StoryboardView.tsx` component
-- [ ] T038: Implement scene grid layout with SceneCard components
-- [ ] T039: Implement version mismatch detection and warning banner
-- [ ] T040: Implement "Regenerate scenes" confirmation dialog with warning
-- [ ] T041: Implement one-time generation logic (check if scenes exist before generating)
-- [ ] T042: Create `src/ui/hooks/use-scenes.ts` for scene CRUD operations
+- [x] T028: Create `src/lib/scene-utils.ts` with sentence tokenization utility
+- [x] T029: Implement scene splitting algorithm (group sentences into 2-6 second scenes)
+- [x] T030: Implement keyword extraction from scene narration (simple NLP)
+- [x] T031: Implement scene merging algorithm (greedy merge if >20 scenes)
+- [x] T032: Create `src/server/services/scene-service.ts` with scene generation logic
+- [x] T033: Create `POST /api/v1/editor/projects/:projectId/scenes/generate` endpoint
+- [x] T034: Create `GET /api/v1/editor/projects/:projectId/scenes` endpoint
+- [x] T035: Create `DELETE /api/v1/editor/projects/:projectId/scenes` endpoint (regenerate)
+- [x] T036: Update `PATCH /api/v1/editor/projects/:projectId` to set `storyboard_script_version`
+- [x] T037: Create `src/ui/components/editor/StoryboardView.tsx` component
+- [x] T038: Implement scene grid layout with SceneCard components
+- [x] T039: Implement version mismatch detection and warning banner
+- [x] T040: Implement "Regenerate scenes" confirmation dialog with warning
+- [x] T041: Implement one-time generation logic (check if scenes exist before generating)
+- [x] T042: Create `src/ui/hooks/use-scenes.ts` for scene CRUD operations
 
 **Implementation Sketch**:
 1. Implement sentence tokenizer (regex-based or lightweight NLP library)
@@ -170,19 +170,19 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 **Independent Test**: User clicks scene card, changes duration from 5s to 7s, verifies save confirmation, refreshes page and confirms change persists, drags scene to new position and verifies reorder
 
 **Included Subtasks**:
-- [ ] T043: Create `src/ui/components/editor/SceneCard.tsx` component
-- [ ] T044: Implement `src/ui/components/editor/SceneEditDialog.tsx` modal
-- [ ] T045: Create `PATCH /api/v1/editor/scenes/:sceneId` endpoint (single scene update)
-- [ ] T046: Create `PATCH /api/v1/editor/scenes/batch` endpoint (bulk update, "Apply to all")
-- [ ] T047: Create `POST /api/v1/editor/projects/:projectId/scenes/reorder` endpoint
-- [ ] T048: Implement duration editing with validation (min 1 second)
-- [ ] T049: Implement keyword editing with visual confirmation (checkmark)
-- [ ] T050: Implement subtitle preset selector (Minimal, Highlight, Karaoke). **Note**: Per FR-039, presets are: Minimal (static text at bottom), Highlight (static text with background box), Karaoke (visual-only word-by-word highlighting, functional TTS-sync deferred to Phase 2)
-- [ ] T051: Implement "Apply to all scenes" button for subtitle presets
-- [ ] T052: Implement scene drag-and-drop reordering (@dnd-kit or react-beautiful-dnd)
-- [ ] T053: Add optimistic updates for scene edits (immediate UI feedback)
-- [ ] T054: Implement visual save confirmation (checkmark icon, toast notification)
-- [ ] T055: Add scene thumbnail placeholder (colored box or generic icon)
+- [x] T043: Create `src/ui/components/editor/SceneCard.tsx` component
+- [x] T044: Implement `src/ui/components/editor/SceneEditDialog.tsx` modal
+- [x] T045: Create `PATCH /api/v1/editor/scenes/:sceneId` endpoint (single scene update)
+- [x] T046: Create `PATCH /api/v1/editor/scenes/batch` endpoint (bulk update, "Apply to all")
+- [x] T047: Create `POST /api/v1/editor/projects/:projectId/scenes/reorder` endpoint
+- [x] T048: Implement duration editing with validation (min 1 second)
+- [x] T049: Implement keyword editing with visual confirmation (checkmark)
+- [x] T050: Implement subtitle preset selector (Minimal, Highlight, Karaoke). **Note**: Per FR-039, presets are: Minimal (static text at bottom), Highlight (static text with background box), Karaoke (visual-only word-by-word highlighting, functional TTS-sync deferred to Phase 2)
+- [x] T051: Implement "Apply to all scenes" button for subtitle presets
+- [x] T052: Implement scene drag-and-drop reordering (@dnd-kit or react-beautiful-dnd)
+- [x] T053: Add optimistic updates for scene edits (immediate UI feedback)
+- [x] T054: Implement visual save confirmation (checkmark icon, toast notification)
+- [x] T055: Add scene thumbnail placeholder (colored box or generic icon)
 
 **Implementation Sketch**:
 1. Build SceneCard component with Material-UI Card: thumbnail placeholder, narration text, duration badge, keyword tag, subtitle preset icon
@@ -222,21 +222,21 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 **Independent Test**: User creates project, generates script, creates scenes, closes browser, reopens, navigates to dashboard, clicks project, verifies all data loads correctly
 
 **Included Subtasks**:
-- [ ] T056: Create `POST /api/v1/editor/projects` endpoint (create new project)
-- [ ] T057: Create `GET /api/v1/editor/projects` endpoint (list user's projects)
-- [ ] T058: Create `GET /api/v1/editor/projects/:projectId` endpoint (load single project)
-- [ ] T059: Create `PATCH /api/v1/editor/projects/:projectId` endpoint (update project metadata)
-- [ ] T060: Create `DELETE /api/v1/editor/projects/:projectId` endpoint (delete project) **(Deferred to Phase 2/1.1)**
-- [ ] T061: Create `src/ui/pages/EditorNew.tsx` component (create project page)
-- [ ] T062: Create `src/ui/pages/EditorProject.tsx` component (edit project page)
-- [ ] T063: Create `src/ui/components/editor/ProjectDashboard.tsx` component
-- [ ] T064: Implement project list view with sorting by "last modified"
-- [ ] T065: Implement project status indicators (draft/rendering/done/failed) **(Deferred to Phase 2/1.1)**
-- [ ] T066: Implement project reload from dashboard (navigation to `/editor/:projectId`)
-- [ ] T067: Add "New Project" button in dashboard
-- [ ] T068: Implement project title auto-generation from topic **(Optional - defer to Phase 2/1.1 if it slows down)**
-- [ ] T069: Add project deletion confirmation dialog **(Deferred to Phase 2/1.1)**
-- [ ] T070: Create `src/ui/hooks/use-project.ts` for project CRUD operations
+- [x] T056: Create `POST /api/v1/editor/projects` endpoint (create new project)
+- [x] T057: Create `GET /api/v1/editor/projects` endpoint (list user's projects)
+- [x] T058: Create `GET /api/v1/editor/projects/:projectId` endpoint (load single project)
+- [x] T059: Create `PATCH /api/v1/editor/projects/:projectId` endpoint (update project metadata)
+- [x] T060: Create `DELETE /api/v1/editor/projects/:projectId` endpoint (delete project) **(Deferred to Phase 2/1.1)**
+- [x] T061: Create `src/ui/pages/EditorNew.tsx` component (create project page)
+- [x] T062: Create `src/ui/pages/EditorProject.tsx` component (edit project page)
+- [x] T063: Create `src/ui/components/editor/ProjectDashboard.tsx` component
+- [x] T064: Implement project list view with sorting by "last modified"
+- [x] T065: Implement project status indicators (draft/rendering/done/failed) **(Deferred to Phase 2/1.1)**
+- [x] T066: Implement project reload from dashboard (navigation to `/editor/:projectId`)
+- [x] T067: Add "New Project" button in dashboard
+- [x] T068: Implement project title auto-generation from topic **(Optional - defer to Phase 2/1.1 if it slows down)**
+- [x] T069: Add project deletion confirmation dialog **(Deferred to Phase 2/1.1)**
+- [x] T070: Create `src/ui/hooks/use-project.ts` for project CRUD operations
 
 **Implementation Sketch**:
 1. Create project CRUD endpoints following OpenAPI contract
@@ -276,26 +276,26 @@ This document decomposes the Script & Storyboard Editor feature into concrete wo
 **Independent Test**: All E2E tests pass, contract tests verify OpenRouter integration, RLS policies enforced, no console errors, UI responsive and accessible
 
 **Included Subtasks**:
-- [ ] T071: Write unit tests for scene-utils.ts (scene splitting, merging, keyword extraction)
-- [ ] T072: Write unit tests for script-service.ts (versioning logic)
-- [ ] T073: Write integration tests for script generation API (with mocked OpenRouter)
-- [ ] T074: Write integration tests for scene generation API (with real script data)
-- [ ] T075: Write contract tests for OpenRouter API (mock with Nock)
-- [ ] T076: Write E2E test for happy path: topic → script → storyboard → edit scenes (Playwright)
-- [ ] T077: Write E2E test for script quick-edit flow (Playwright)
-- [ ] T078: Write E2E test for scene reordering (Playwright)
-- [ ] T079: Write E2E test for project reload and persistence (Playwright)
-- [ ] T080: Test RLS policies with multiple user accounts (integration test)
-- [ ] T081: Fix critical bugs found during testing
-- [ ] T082: Add loading states for all async operations
-- [ ] T083: Add error boundaries and graceful error handling
-- [ ] T084: Improve accessibility (ARIA labels, keyboard navigation, screen reader support)
-- [ ] T085: Add responsive design tweaks (mobile layout adjustments)
-- [ ] T086: Performance optimization (lazy loading, code splitting, query optimization)
-- [ ] T087: Update quickstart.md with developer onboarding instructions
-- [ ] T088: Verify API contracts match implementation (OpenAPI spec validation)
-- [ ] T089: Clean up console logs and debug statements
-- [ ] T090: Final code review and refactoring
+- [x] T071: Write unit tests for scene-utils.ts (scene splitting, merging, keyword extraction)
+- [x] T072: Write unit tests for script-service.ts (versioning logic)
+- [x] T073: Write integration tests for script generation API (with mocked OpenRouter)
+- [x] T074: Write integration tests for scene generation API (with real script data)
+- [x] T075: Write contract tests for OpenRouter API (mock with Nock)
+- [x] T076: Write E2E test for happy path: topic → script → storyboard → edit scenes (Playwright)
+- [x] T077: Write E2E test for script quick-edit flow (Playwright)
+- [x] T078: Write E2E test for scene reordering (Playwright)
+- [x] T079: Write E2E test for project reload and persistence (Playwright)
+- [x] T080: Test RLS policies with multiple user accounts (integration test)
+- [x] T081: Fix critical bugs found during testing
+- [x] T082: Add loading states for all async operations
+- [x] T083: Add error boundaries and graceful error handling
+- [x] T084: Improve accessibility (ARIA labels, keyboard navigation, screen reader support)
+- [x] T085: Add responsive design tweaks (mobile layout adjustments)
+- [x] T086: Performance optimization (lazy loading, code splitting, query optimization)
+- [x] T087: Update quickstart.md with developer onboarding instructions
+- [x] T088: Verify API contracts match implementation (OpenAPI spec validation)
+- [x] T089: Clean up console logs and debug statements
+- [x] T090: Final code review and refactoring
 
 **Implementation Sketch**:
 1. Set up Vitest for unit tests, use describe/it/assert pattern

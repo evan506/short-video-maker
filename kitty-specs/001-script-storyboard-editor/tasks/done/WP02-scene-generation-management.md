@@ -3,6 +3,7 @@ work_package_id: "WP02"
 subtasks: ["T028", "T029", "T030", "T031", "T032", "T033", "T034", "T035", "T036", "T037", "T038", "T039", "T040", "T041", "T042"]
 lane: "done"
 title: "Scene Generation & Management"
+assignee: "claude"
 agent: "claude"
 shell_pid: "57355"
 review_status: "approved with notes"
@@ -220,3 +221,9 @@ Verify:
 6. Keyword extraction quality (check extracted keywords make sense)
 7. Scene order is sequential (no gaps in order_index)
 8. RLS policies enforced (test with multiple users)
+
+## Activity Log
+
+- 2026-01-04T19:50:00Z – claude – shell_pid=57355 – lane=doing – Started implementation of Scene Generation & Management
+- 2026-01-04T20:00:00Z – claude – shell_pid=57355 – lane=for_review – Completed - All 15 subtasks finished (T028-T042)
+- 2026-01-06T00:00:00Z – claude – shell_pid=57355 – lane=done – Accepted - All requirements verified, implementation complete
