@@ -28,7 +28,9 @@
       "mcp__supabase__get_publishable_keys",
       "mcp__playwright__playwright_press_key",
       "Bash(.kittify/scripts/bash/accept-feature.sh:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(.kittify/scripts/bash/create-new-feature.sh:*)",
+      "Bash(.kittify/scripts/bash/setup-plan.sh:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

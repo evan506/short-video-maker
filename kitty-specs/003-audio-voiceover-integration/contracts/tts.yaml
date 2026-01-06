@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: TTS Preview API
+  version: 1.0.0
+paths:
+  /api/v1/scenes/{sceneId}/tts/preview:
+    post:
+      summary: Generate TTS preview
+      tags: [TTS Preview]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: TTS generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  audioUrl:
+                    type: string
+                    format: uri
+                  duration:
+                    type: number
+                  cached:
+                    type: boolean
+  /api/v1/scenes/tts/batch:
+    post:
+      summary: Batch generate TTS previews
+      tags: [TTS Preview]
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Batch initiated
