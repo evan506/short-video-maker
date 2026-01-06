@@ -70,36 +70,45 @@ This feature is organized into 4 work packages (WP00-WP03), each containing grou
 
 ---
 
-### WP02: SceneCard Integration & Real-time Updates
+### WP02: SceneCard Integration & Real-time Updates ✅
 **Priority**: P1 (Core User Experience)
 **Estimated Effort**: 8-10 hours
 **Dependencies**: WP00, WP01 (needs API and components)
-**Task Prompt**: [tasks/planned/WP02-scenecard-integration-realtime.md](tasks/planned/WP02-scenecard-integration-realtime.md)
+**Status**: ✅ **COMPLETED** (For Review 2026-01-06)
+**Task Prompt**: [tasks/for_review/WP02-scenecard-integration-realtime.md](tasks/for_review/WP02-scenecard-integration-realtime.md)
 
 **Goal**: Integrate media options into SceneCard with real-time updates.
 
 **Tasks**:
-- T023-T026: SceneCard media options section
-- T027-T029: Supabase real-time subscriptions
-- T030-T032: Selection state management
-- T033-T034: Refresh functionality
-- T035-T036: Integration testing
+- T023-T026: SceneCard media options section ✅
+- T027-T029: Supabase real-time subscriptions ✅
+- T030-T032: Selection state management ✅
+- T033-T034: Refresh functionality ✅
+- T035-T036: Integration testing ✅
 
 **Deliverables**:
-- Updated `SceneCard.tsx` with media options display
-- Real-time subscription hook for media changes
-- Selection state persisted to database
-- Refresh button with rate limit protection
-- Integration tests for SceneCard + media
+- ✅ `SceneCard.enhanced.tsx` with media options display
+- ✅ `useMediaSubscription.ts` hook for real-time changes
+- ✅ Selection state persisted to database
+- ✅ Refresh button with 60-second rate limit protection
+- ✅ Integration tests (SceneCard.enhanced.test.tsx, useMediaSubscription.test.ts)
 
 **Acceptance Criteria**:
 - ✅ Scene cards display media options when available
 - ✅ Real-time updates work without page refresh
 - ✅ Selected video shows green border + checkmark
-- ✅ Refresh button triggers new search
+- ✅ Refresh button triggers new search with rate limiting
 - ✅ Loading states display during search
 - ✅ Error messages are user-friendly
 - ✅ Integration tests pass
+- ✅ Keyboard navigation (← → arrows, Tab, Enter)
+
+**Files Created**:
+- `src/ui/components/editor/SceneCard.enhanced.tsx` (622 lines)
+- `src/ui/components/editor/SceneCard.enhanced.test.tsx` (476 lines)
+- `src/ui/hooks/useMediaSubscription.ts` (212 lines)
+- `src/ui/hooks/useMediaSubscription.test.ts` (512 lines)
+- `src/ui/components/editor/media-components.ts` (barrel export)
 
 ---
 
