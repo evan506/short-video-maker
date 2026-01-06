@@ -38,11 +38,12 @@ This feature is organized into 4 work packages (WP00-WP03), each containing grou
 
 ---
 
-### WP01: Frontend Video Components
+### WP01: Frontend Video Components ✅
 **Priority**: P1 (Core User Experience)
 **Estimated Effort**: 6-8 hours
 **Dependencies**: WP00 (needs API endpoints)
-**Task Prompt**: [tasks/planned/WP01-frontend-video-components.md](tasks/planned/WP01-frontend-video-components.md)
+**Status**: ✅ **COMPLETED** (Approved 2026-01-06)
+**Task Prompt**: [tasks/done/WP01-frontend-video-components.md](tasks/done/WP01-frontend-video-components.md)
 
 **Goal**: Build reusable video thumbnail and preview components with lazy loading.
 
