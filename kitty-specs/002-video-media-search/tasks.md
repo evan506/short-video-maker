@@ -9,11 +9,12 @@
 
 This feature is organized into 4 work packages (WP00-WP03), each containing grouped subtasks.
 
-### WP00: Backend API & Media Service Integration
+### WP00: Backend API & Media Service Integration ✅
 **Priority**: P0 (Critical Foundation)
 **Estimated Effort**: 4-6 hours
 **Dependencies**: None (can start immediately)
-**Task Prompt**: [tasks/planned/WP00-backend-api-media-service.md](tasks/planned/WP00-backend-api-media-service.md)
+**Status**: ✅ **COMPLETED** (Approved 2026-01-06)
+**Task Prompt**: [tasks/done/WP00-backend-api-media-service.md](tasks/done/WP00-backend-api-media-service.md)
 
 **Goal**: Expose backend API endpoints for media search and integrate with existing scene service.
 
