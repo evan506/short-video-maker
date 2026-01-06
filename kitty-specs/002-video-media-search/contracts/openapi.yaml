@@ -1,0 +1,454 @@
+openapi: 3.0.3
+info:
+  title: AutoShorts Media Search API
+  description: API for searching and managing video media from Pexels
+  version: 2.0.0
+  contact:
+    name: AutoShorts Team
+
+servers:
+  - url: http://localhost:3123/api/v1
+    description: Development server
+  - url: https://api.autoshorts.com/api/v1
+    description: Production server
+
+tags:
+  - name: Media
+    description: Video media search and management
+
+paths:
+  /media/search:
+    post:
+      tags:
+        - Media
+      summary: Search Pexels for videos
+      description: |
+        Searches the Pexels API for videos based on scene keywords.
+        Returns 3-5 video options that match the search criteria.
+
+        Results are cached for 24 hours to reduce API calls.
+      operationId: searchMedia
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sceneId
+              properties:
+                sceneId:
+                  type: string
+                  format: uuid
+                  description: Scene ID to search videos for
+                  example: "550e8400-e29b-41d4-a716-446655440000"
+                keywords:
+                  type: string
+                  description: Keywords to search (optional, uses scene keywords if not provided)
+                  example: "grilling steak barbecue"
+                  maxLength: 200
+                maxResults:
+                  type: integer
+                  description: Maximum number of results to return
+                  minimum: 1
+                  maximum: 10
+                  default: 5
+                  example: 5
+      responses:
+        '200':
+          description: Search completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      options:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MediaOption'
+                      totalResults:
+                        type: integer
+                        example: 42
+                      cached:
+                        type: boolean
+                        description: Whether results came from cache
+                        example: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'RATE_LIMIT_EXCEEDED'
+                  message: 'Pexels API rate limit exceeded. Please try again later.'
+                  retryAfter: 3600
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /media/select:
+    post:
+      tags:
+        - Media
+      summary: Select a video for a scene
+      description: |
+        Marks a video option as the selected video for a scene.
+        Deselects any previously selected video for the same scene.
+      operationId: selectMedia
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sceneId
+                - mediaOptionId
+              properties:
+                sceneId:
+                  type: string
+                  format: uuid
+                  description: Scene ID
+                  example: "550e8400-e29b-41d4-a716-446655440000"
+                mediaOptionId:
+                  type: string
+                  format: uuid
+                  description: Media option ID to select
+                  example: "660e8400-e29b-41d4-a716-446655440001"
+      responses:
+        '200':
+          description: Video selected successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/MediaOption'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Scene or media option not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'NOT_FOUND'
+                  message: 'Scene or media option not found'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /media/refresh:
+    post:
+      tags:
+        - Media
+      summary: Refresh media options for a scene
+      description: |
+        Deletes existing media options and triggers a new search.
+        Useful for getting fresh results or after changing keywords.
+      operationId: refreshMedia
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sceneId
+              properties:
+                sceneId:
+                  type: string
+                  format: uuid
+                  description: Scene ID to refresh media options for
+                  example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Media options refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      options:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MediaOption'
+                      totalResults:
+                        type: integer
+                        example: 38
+                      cached:
+                        type: boolean
+                        example: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'RATE_LIMIT_EXCEEDED'
+                  message: 'Too many refresh attempts. Please try again later.'
+                  retryAfter: 60
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /media/options/{sceneId}:
+    get:
+      tags:
+        - Media
+      summary: Get media options for a scene
+      description: Retrieves all media options for a scene, including the selected one
+      operationId: getMediaOptions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Scene ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Media options retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      options:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MediaOption'
+                      selected:
+                        $ref: '#/components/schemas/MediaOption'
+                        description: The currently selected video (null if none)
+                        nullable: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Scene not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'NOT_FOUND'
+                  message: 'Scene not found'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT token from auth
+
+  schemas:
+    MediaOption:
+      type: object
+      description: A video option from Pexels
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique media option ID
+          example: "660e8400-e29b-41d4-a716-446655440001"
+        sceneId:
+          type: string
+          format: uuid
+          description: Parent scene ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        pexelsVideoId:
+          type: integer
+          description: Pexels video identifier
+          example: 5487321
+        videoUrl:
+          type: string
+          format: uri
+          description: Direct URL to video file
+          example: "https://player.vimeo.com/external/5487321.sd.mp4"
+        thumbnailUrl:
+          type: string
+          format: uri
+          description: Thumbnail image URL
+          example: "https://images.pexels.com/videos/5487321/thumbnail.jpg"
+        durationSec:
+          type: integer
+          description: Video duration in seconds
+          minimum: 1
+          example: 15
+        width:
+          type: integer
+          description: Video resolution width
+          minimum: 1
+          example: 1080
+        height:
+          type: integer
+          description: Video resolution height
+          minimum: 1
+          example: 1920
+        aspectRatio:
+          type: string
+          description: Aspect ratio
+          enum: ["9:16", "16:9", "1:1"]
+          example: "9:16"
+        isSelected:
+          type: boolean
+          description: Whether this video is selected for the scene
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          description: When this option was fetched
+          example: "2026-01-06T12:00:00Z"
+        expiresAt:
+          type: string
+          format: date-time
+          description: When this option expires from cache
+          example: "2026-01-07T12:00:00Z"
+      required:
+        - id
+        - sceneId
+        - pexelsVideoId
+        - videoUrl
+        - thumbnailUrl
+        - durationSec
+        - width
+        - height
+        - aspectRatio
+        - isSelected
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Invalid request parameters"
+            details:
+              type: object
+              description: Additional error details
+              additionalProperties: true
+            retryAfter:
+              type: integer
+              description: Seconds to wait before retrying (for rate limits)
+              example: 3600
+      required:
+        - success
+        - error
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: 'VALIDATION_ERROR'
+              message: 'Invalid request parameters'
+              details:
+                sceneId: 'Invalid UUID format'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: 'UNAUTHORIZED'
+              message: 'Authentication required'
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: 'FORBIDDEN'
+              message: 'You do not have permission to access this resource'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: 'INTERNAL_ERROR'
+              message: 'An unexpected error occurred'

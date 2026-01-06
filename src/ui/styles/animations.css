@@ -1,0 +1,184 @@
+/**
+ * Media Component Animations
+ *
+ * Smooth animations for media thumbnails, selection states,
+ * loading spinners, and modals. Optimized for 60fps performance.
+ */
+
+/* Thumbnail entrance animation - fade in + slide up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Selection pulse animation */
+@keyframes selectionPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Loading spinner rotation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modal fade in + scale */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modal fade out + scale */
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Error shake animation */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+/* Success checkmark draw animation */
+@keyframes checkmarkDraw {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Shimmer effect for loading skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Apply animations */
+.thumbnail-enter {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.thumbnail-enter-delay-1 {
+  animation-delay: 0.05s;
+}
+
+.thumbnail-enter-delay-2 {
+  animation-delay: 0.1s;
+}
+
+.thumbnail-enter-delay-3 {
+  animation-delay: 0.15s;
+}
+
+.thumbnail-selected {
+  animation: selectionPulse 0.3s ease-out;
+}
+
+.spinner-rotate {
+  animation: spin 1s linear infinite;
+}
+
+.modal-enter {
+  animation: modalFadeIn 0.2s ease-out forwards;
+}
+
+.modal-exit {
+  animation: modalFadeOut 0.15s ease-in forwards;
+}
+
+.error-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+.success-checkmark {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: checkmarkDraw 0.4s ease-out forwards;
+}
+
+/* Loading skeleton shimmer */
+.skeleton-loading {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Smooth scroll for thumbnail list */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hover effects - scale and shadow */
+.hover-scale {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Progress bar smooth transition */
+.progress-bar-smooth {
+  transition: width 0.3s ease;
+}
+
+/* Fade transition for collapsible sections */
+.collapse-fade {
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+/* Focus visible with transition */
+.focus-ring-transition {
+  transition: outline-color 0.2s ease, outline-offset 0.2s ease;
+}

@@ -8,6 +8,7 @@
 import { generateScenes as generateScenesUtil } from '../../lib/scene-utils';
 import { supabase } from '../lib/supabase';
 import { extractKeywordsForScenes } from './llm-service';
+import { searchVideosWithRetry } from './media-service';
 
 export interface GenerateScenesParams {
   projectId: string;
@@ -95,6 +96,88 @@ export async function generateScenes(params: GenerateScenesParams): Promise<Scen
   if (updateError) {
     throw new Error(`Failed to update project: ${updateError.message}`);
   }
+
+  // Trigger automatic media search for each scene (fire-and-forget)
+  // This runs in the background and does not block scene creation
+  setImmediate(async () => {
+    console.log(`[Scene Service] Triggering automatic media search for ${insertedScenes.length} scenes...`);
+
+    for (const scene of insertedScenes) {
+      try {
+        // Update scene status to searching
+        await supabase
+          .from('scenes')
+          .update({ media_search_status: 'searching' })
+          .eq('id', scene.id);
+
+        // Search for videos using the scene's primary keyword
+        const searchResult = await searchVideosWithRetry({
+          keywords: scene.primary_keyword,
+          maxResults: 5
+        });
+
+        // Save search results to database
+        if (searchResult.options.length > 0) {
+          const mediaOptionsToInsert = searchResult.options.map(option => ({
+            scene_id: scene.id,
+            pexels_video_id: option.pexelsVideoId,
+            video_url: option.videoUrl,
+            thumbnail_url: option.thumbnailUrl,
+            duration_sec: option.durationSec,
+            width: option.width,
+            height: option.height,
+            aspect_ratio: option.aspectRatio,
+            is_selected: false
+          }));
+
+          const { error: insertError } = await supabase
+            .from('scene_media_options')
+            .insert(mediaOptionsToInsert);
+
+          if (insertError) {
+            console.error(`[Scene Service] Failed to save media options for scene ${scene.id}:`, insertError);
+          }
+
+          // Update scene status to completed
+          await supabase
+            .from('scenes')
+            .update({
+              media_search_status: 'completed',
+              media_searched_at: new Date().toISOString(),
+              media_search_error: null
+            })
+            .eq('id', scene.id);
+
+          console.log(`[Scene Service] Media search completed for scene ${scene.id} (${searchResult.options.length} videos found)`);
+        } else {
+          // No results found
+          await supabase
+            .from('scenes')
+            .update({
+              media_search_status: 'no_results',
+              media_searched_at: new Date().toISOString(),
+              media_search_error: null
+            })
+            .eq('id', scene.id);
+
+          console.log(`[Scene Service] No media results found for scene ${scene.id}`);
+        }
+      } catch (error) {
+        console.error(`[Scene Service] Media search failed for scene ${scene.id}:`, error);
+
+        // Update scene status to failed
+        await supabase
+          .from('scenes')
+          .update({
+            media_search_status: 'failed',
+            media_search_error: error instanceof Error ? error.message : 'Unknown error'
+          })
+          .eq('id', scene.id);
+      }
+    }
+
+    console.log(`[Scene Service] Automatic media search completed for all scenes`);
+  });
 
   return insertedScenes;
 }
