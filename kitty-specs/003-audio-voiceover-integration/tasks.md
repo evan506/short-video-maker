@@ -139,16 +139,17 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 **Goal**: Build background music selection UI
 **User Story**: User Story 2 - Background Music Selection and Audio Mixing
 **Estimated Effort**: 4-6 hours
+**Status**: ✅ **Complete** (2026-01-08: Approved without changes - see `tasks/done/WP05-music-library-ui.md`)
 
 ### Subtasks
 
-- [ ] **T030**: Create `src/ui/components/audio/MusicLibrary.tsx` with track list display
-- [ ] **T031**: Add mood filter buttons (upbeat, calm, dramatic, inspirational)
-- [ ] **T032**: Implement track cards with title, artist, duration, mood tags, energy level
-- [ ] **T033**: Add "Play Preview" button for each track
-- [ ] **T034**: Call `GET /api/music/library` with mood filter query params
-- [ ] **T035**: Add "Apply to Scene" button that assigns music track to scene (application state or DB)
-- [ ] **T036**: Add volume slider (0-100%) with real-time preview
+- [x] **T030**: Create `src/ui/components/audio/MusicLibrary.tsx` with track list display
+- [x] **T031**: Add mood filter buttons (upbeat, calm, dramatic, inspirational)
+- [x] **T032**: Implement track cards with title, artist, duration, mood tags, energy level
+- [x] **T033**: Add "Play Preview" button for each track
+- [x] **T034**: Call `GET /api/music/library` with mood filter query params
+- [x] **T035**: Add "Apply to Scene" button that assigns music track to scene (application state or DB)
+- [x] **T036**: Add volume slider (0-100%) with real-time preview
 
 ### Dependencies
 - Depends on: WP01 (background_music table must be seeded)
