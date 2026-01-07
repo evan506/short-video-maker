@@ -3,6 +3,7 @@
  *
  * Individual scene card with thumbnail, narration, duration, keyword, and preset.
  * Displays drag handle and opens edit dialog on click.
+ * Includes TTS preview button and player (WP04: T024-T029).
  */
 
 import React, { useState } from 'react';
@@ -15,10 +16,16 @@ import {
   useTheme,
   Paper,
   Fade,
-  CircularProgress
+  CircularProgress,
+  Collapse,
+  Button,
+  IconButton,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import { TTSPreviewPlayer } from '../audio/TTSPreviewPlayer';
 
 interface Scene {
   id: string;
@@ -42,6 +49,7 @@ interface SceneCardProps {
   onDrop?: (e: React.DragEvent, scene: Scene) => void;
   isDragging?: boolean;
   showSaveConfirmation?: boolean;
+  projectId?: string; // For TTS preview context
 }
 
 // Subtitle preset icons (simplified visual representation)
@@ -77,9 +85,13 @@ export function SceneCard({
   onDragOver,
   onDrop,
   isDragging = false,
-  showSaveConfirmation = false
+  showSaveConfirmation = false,
+  projectId,
 }: SceneCardProps) {
   const theme = useTheme();
+
+  // TTS preview state (T024-T029)
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleClick = () => {
     if (onEdit) {
@@ -105,6 +117,22 @@ export function SceneCard({
     if (onDrop) {
       onDrop(e, scene);
     }
+  };
+
+  /**
+   * Toggle TTS preview section
+   * Prevents card click when preview button is clicked
+   */
+  const handleTogglePreview = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowPreview((prev) => !prev);
+  };
+
+  /**
+   * Prevent card click when interacting with preview player
+   */
+  const handlePreviewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   return (
@@ -278,6 +306,68 @@ export function SceneCard({
           >
             {PRESET_ICONS[scene.subtitle_style_preset_id] || '?'}
           </Paper>
+        </Box>
+
+        {/* TTS Preview Section (T024-T029) */}
+        <Box sx={{ mt: 1.5 }}>
+          {/* Preview Voiceover button */}
+          {!showPreview ? (
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<VolumeUpIcon />}
+              onClick={handleTogglePreview}
+              disabled={!scene.narration_text || scene.narration_text.trim().length === 0}
+              sx={{
+                fontSize: '0.75rem',
+                py: 0.5,
+                width: '100%',
+                justifyContent: 'flex-start',
+              }}
+            >
+              Preview Voiceover
+            </Button>
+          ) : (
+            <Collapse in={showPreview}>
+              <Box
+                onClick={handlePreviewClick}
+                sx={{
+                  p: 1,
+                  bgcolor: 'action.hover',
+                  borderRadius: 1,
+                  border: `1px solid ${theme.palette.divider}`,
+                }}
+              >
+                {/* Header: Close button */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    TTS Preview
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={handleTogglePreview}
+                    sx={{ transform: showPreview ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                  >
+                    <ExpandMoreIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Box>
+
+                {/* TTS Preview Player */}
+                <TTSPreviewPlayer
+                  sceneId={scene.id}
+                  narrationText={scene.narration_text}
+                  compact={true}
+                />
+              </Box>
+            </Collapse>
+          )}
         </Box>
       </CardContent>
     </Card>
