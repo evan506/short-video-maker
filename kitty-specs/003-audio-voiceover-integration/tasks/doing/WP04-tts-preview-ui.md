@@ -1,8 +1,16 @@
 ---
 work_package_id: "WP04"
 subtasks: ["T023", "T024", "T025", "T026", "T027", "T028", "T029"]
-lane: "planned"
+lane: "doing"
+assignee: "claude"
+agent: "claude"
+shell_pid: "0"
 title: "TTS Preview Player UI"
+history:
+  - date: 2026-01-06
+    event: Created
+  - date: 2026-01-07T02:10:00Z
+    event: Moved to doing lane - Started implementation
 ---
 
 # WP04: TTS Preview Player UI
