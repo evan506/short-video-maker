@@ -37,23 +37,24 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 
 ---
 
-## WP02 - Edge TTS Service Integration (Priority: P1)
+## WP02 - Edge TTS Service Integration (Priority: P1) ✅ DONE
 
 **Goal**: Integrate Edge TTS for voiceover generation
 **User Story**: User Story 1 - Voice Selection and Voiceover Generation
 **Estimated Effort**: 6-8 hours
+**Status**: Complete - See `tasks/done/WP02-edge-tts-service.md`
 
 ### Subtasks
 
-- [ ] **T007**: Install Edge TTS package (`edge-tts` or `@discordjs/edge-tts`)
-- [ ] **T008**: Create `src/server/services/tts-service.ts` with Edge TTS wrapper functions
-- [ ] **T009**: Implement `generateVoiceover(text, voiceName)` function with error handling and retry logic (up to 2 retries)
-- [ ] **T010**: Create `src/server/utils/text-hasher.ts` for SHA-256 hash generation (text + voice_id)
-- [ ] **T011**: Create `src/server/services/audio-storage.ts` with Supabase Storage upload/download functions
-- [ ] **T012**: Implement signed URL generation with 60-second TTL
-- [ ] **T013**: Create API route `POST /api/scenes/:sceneId/tts/preview` with cache check logic
-- [ ] **T014**: Insert cache record to tts_previews table with text_hash and 10-minute expires_at
-- [ ] **T015**: Create `src/server/services/audio-cache.ts` with cache lookup and cleanup functions
+- [x] **T007**: Install Edge TTS package (`edge-tts` or `@discordjs/edge-tts`)
+- [x] **T008**: Create `src/server/services/tts-service.ts` with Edge TTS wrapper functions
+- [x] **T009**: Implement `generateVoiceover(text, voiceName)` function with error handling and retry logic (up to 2 retries)
+- [x] **T010**: Create `src/server/utils/text-hasher.ts` for SHA-256 hash generation (text + voice_id)
+- [x] **T011**: Create `src/server/services/audio-storage.ts` with Supabase Storage upload/download functions
+- [x] **T012**: Implement signed URL generation with 60-second TTL
+- [x] **T013**: Create API route `POST /api/scenes/:sceneId/tts/preview` with cache check logic
+- [x] **T014**: Insert cache record to tts_previews table with text_hash and 10-minute expires_at
+- [x] **T015**: Create `src/server/services/audio-cache.ts` with cache lookup and cleanup functions
 
 ### Dependencies
 - Depends on: WP01 (scene_audio, tts_previews tables must exist)
