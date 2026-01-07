@@ -108,17 +108,17 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 **Goal**: Build scene-level TTS preview generation and playback
 **User Story**: User Story 1 - Voice Selection and Voiceover Generation
 **Estimated Effort**: 4-6 hours
-**Status**: 🔄 **Under Review - Needs Changes** (2026-01-08: Critical issues found - see `tasks/planned/WP04-tts-preview-ui.md`)
+**Status**: ✅ **Complete** (2026-01-08: Approved with fixes - see `tasks/done/WP04-tts-preview-ui.md`)
 
 ### Subtasks
 
-- [ ] **T023**: Create `src/ui/components/audio/TTSPreviewPlayer.tsx` with play/pause/stop controls
-- [ ] **T024**: Add "Preview Voiceover" button to scene card in storyboard editor
-- [ ] **T025**: Implement loading state during generation (spinner or progress indicator)
-- [ ] **T026**: Call `/api/scenes/:sceneId/tts/preview` and handle response (audioUrl, duration, cached)
-- [ ] **T027**: Display "cached" badge when audio retrieved from cache
-- [ ] **T028**: Create `src/ui/hooks/useTTSPreview.ts` hook for preview generation and caching logic
-- [ ] **T029**: Display error messages with retry button on failure
+- [x] **T023**: Create `src/ui/components/audio/TTSPreviewPlayer.tsx` with play/pause/stop controls
+- [x] **T024**: Add "Preview Voiceover" button to scene card in storyboard editor
+- [x] **T025**: Implement loading state during generation (spinner or progress indicator)
+- [x] **T026**: Call `/api/scenes/:sceneId/tts/preview` and handle response (audioUrl, duration, cached)
+- [x] **T027**: Display "cached" badge when audio retrieved from cache
+- [x] **T028**: Create `src/ui/hooks/useTTSPreview.ts` hook for preview generation and caching logic
+- [x] **T029**: Display error messages with retry button on failure
 
 ### Dependencies
 - Depends on: WP02 (TTS API), WP03 (voice must be selected)
