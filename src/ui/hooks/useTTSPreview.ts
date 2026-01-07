@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
+import { supabase } from '../../services/supabase';
 
 /**
  * TTS preview response from API
@@ -27,14 +28,58 @@ interface UseTTSPreviewReturn {
 }
 
 /**
+ * Fetch scene to get project_id
+ */
+async function fetchSceneProjectId(sceneId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('scenes')
+    .select('project_id')
+    .eq('id', sceneId)
+    .single();
+
+  if (error) {
+    console.error('[useTTSPreview] Failed to fetch scene:', error);
+    throw new Error(`Failed to fetch scene: ${error.message}`);
+  }
+
+  return data?.project_id || null;
+}
+
+/**
+ * Fetch project's selected voice_id
+ */
+async function fetchProjectVoiceId(projectId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('voice_id')
+    .eq('id', projectId)
+    .single();
+
+  if (error) {
+    console.error('[useTTSPreview] Failed to fetch project:', error);
+    throw new Error(`Failed to fetch project: ${error.message}`);
+  }
+
+  return data?.voice_id || null;
+}
+
+/**
  * Generate TTS preview for a scene
  */
-async function fetchTTSPreview(sceneId: string): Promise<TTSPreviewResponse> {
+async function fetchTTSPreview(
+  sceneId: string,
+  text: string,
+  voiceId: string
+): Promise<TTSPreviewResponse> {
   const response = await fetch(`/api/v1/scenes/${sceneId}/tts/preview`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify({
+      text,
+      voiceId,
+    }),
   });
 
   if (!response.ok) {
@@ -48,7 +93,6 @@ async function fetchTTSPreview(sceneId: string): Promise<TTSPreviewResponse> {
 /**
  * Hook for managing TTS preview generation
  *
- * @param projectId - Project UUID (optional, for context)
  * @returns TTS preview state and operations
  *
  * @example
@@ -64,7 +108,7 @@ async function fetchTTSPreview(sceneId: string): Promise<TTSPreviewResponse> {
  * };
  * ```
  */
-export function useTTSPreview(projectId?: string): UseTTSPreviewReturn {
+export function useTTSPreview(): UseTTSPreviewReturn {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const generatingRef = useRef<Set<string>>(new Set());
@@ -102,7 +146,24 @@ export function useTTSPreview(projectId?: string): UseTTSPreviewReturn {
     generatingRef.current.add(sceneId);
 
     try {
-      const result = await fetchTTSPreview(sceneId);
+      // Step 1: Fetch scene to get project_id
+      const projectId = await fetchSceneProjectId(sceneId);
+
+      if (!projectId) {
+        setError('Scene not found or has no project');
+        return null;
+      }
+
+      // Step 2: Fetch project's selected voice_id
+      const voiceId = await fetchProjectVoiceId(projectId);
+
+      if (!voiceId) {
+        setError('Please select a voice first in the Voice Library');
+        return null;
+      }
+
+      // Step 3: Generate TTS preview with voiceId
+      const result = await fetchTTSPreview(sceneId, text, voiceId);
 
       // Log cache hits for analytics
       if (result.cached) {
@@ -120,7 +181,7 @@ export function useTTSPreview(projectId?: string): UseTTSPreviewReturn {
       setIsGenerating(false);
       generatingRef.current.delete(sceneId);
     }
-  }, [projectId]);
+  }, []);
 
   /**
    * Clear error state
