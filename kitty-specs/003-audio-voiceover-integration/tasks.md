@@ -166,11 +166,11 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 
 ---
 
-## WP06 - Audio Mixing Worker & UI (Priority: P1)
+## WP06a - Audio Mixing Worker (Backend) (Priority: P1)
 
-**Goal**: Implement FFmpeg audio mixing in worker and mixer UI
+**Goal**: Implement FFmpeg audio mixing service in worker process
 **User Story**: User Story 2 - Background Music Selection and Audio Mixing
-**Estimated Effort**: 6-8 hours
+**Estimated Effort**: 4-6 hours
 
 ### Subtasks
 
@@ -182,16 +182,9 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 - [ ] **T042**: Create API route `POST /api/scenes/:sceneId/audio/mix` that creates audio_generation_jobs record
 - [ ] **T043**: Worker polls for jobs with status='pending', processes, updates to 'completed'
 - [ ] **T044**: Upload mixed audio to Supabase Storage as `audio_type='mixed'`
-- [ ] **T045**: Create `src/ui/components/audio/AudioMixer.tsx` with volume sliders
-- [ ] **T046**: Add "Mix Audio" button that calls mixing API and shows progress
-- [ ] **T047**: Implement polling or SSE for job status updates
-- [ ] **T048**: Display mixed audio player when job completes
 
 ### Dependencies
 - Depends on: WP02 (voiceover exists), WP05 (music selected), WP01 (scene_audio table exists)
-
-### Parallel Opportunities
-- T037-T041 (worker service) can be done in parallel with T045-T048 (UI components)
 
 ### Definition of Done
 - Audio mixing completes in <3 seconds per scene
@@ -199,6 +192,30 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 - Volume controls accurately reflected in output
 - Fade transitions are smooth
 - Job status tracking works end-to-end
+
+---
+
+## WP06b - Audio Mixer UI (Frontend) (Priority: P1)
+
+**Goal**: Build UI for audio mixing with volume controls and job status
+**User Story**: User Story 2 - Background Music Selection and Audio Mixing
+**Estimated Effort**: 3-4 hours
+
+### Subtasks
+
+- [ ] **T045**: Create `src/ui/components/audio/AudioMixer.tsx` with volume sliders
+- [ ] **T046**: Add "Mix Audio" button that calls mixing API and shows progress
+- [ ] **T047**: Implement polling or SSE for job status updates
+- [ ] **T048**: Display mixed audio player when job completes
+
+### Dependencies
+- Depends on: WP02 (voiceover exists), WP05 (music selected), WP06a (mixing worker ready)
+
+### Definition of Done
+- UI displays volume controls
+- Mixing progress shown
+- Mixed audio plays when complete
+- Job status polling works
 
 ---
 
