@@ -1,8 +1,10 @@
 ---
 work_package_id: "WP03"
 subtasks: ["T016", "T017", "T018", "T019", "T020", "T021", "T022"]
-lane: "planned"
+lane: "doing"
 title: "Voice Library UI"
+agent: "claude"
+shell_pid: "16236"
 history:
   - date: 2026-01-06
     event: Created
@@ -29,3 +31,7 @@ Build voice selection UI with sample playback.
 - 10+ voices displayed
 - Sample audio plays in <1 second
 - Selection persists
+
+## Activity Log
+
+- 2026-01-07T01:47:12Z – claude – shell_pid=16236 – lane=doing – Started implementation
