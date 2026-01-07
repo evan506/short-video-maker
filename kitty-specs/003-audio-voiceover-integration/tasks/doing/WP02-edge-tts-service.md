@@ -1,8 +1,10 @@
 ---
 work_package_id: "WP02"
 subtasks: ["T007", "T008", "T009", "T010", "T011", "T012", "T013", "T014", "T015"]
-lane: "planned"
+lane: "doing"
 title: "Edge TTS Service Integration"
+agent: "claude"
+shell_pid: "8683"
 history:
   - date: 2026-01-06
     event: Created
@@ -31,3 +33,7 @@ Integrate Edge TTS (free) for voiceover generation with caching, storage, and AP
 - TTS generation works in <5 seconds
 - Cache prevents regeneration
 - Signed URLs work for playback
+
+## Activity Log
+
+- 2026-01-07T01:08:08Z – claude – shell_pid=8683 – lane=doing – Started implementation
