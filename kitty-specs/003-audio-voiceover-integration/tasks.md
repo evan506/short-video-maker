@@ -108,6 +108,7 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 **Goal**: Build scene-level TTS preview generation and playback
 **User Story**: User Story 1 - Voice Selection and Voiceover Generation
 **Estimated Effort**: 4-6 hours
+**Status**: 🔄 **Under Review - Needs Changes** (2026-01-08: Critical issues found - see `tasks/planned/WP04-tts-preview-ui.md`)
 
 ### Subtasks
 
