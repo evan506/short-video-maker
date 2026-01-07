@@ -32,7 +32,8 @@
       "Bash(.kittify/scripts/bash/create-new-feature.sh:*)",
       "Bash(.kittify/scripts/bash/setup-plan.sh:*)",
       "Bash(/Users/shinwookkang/evan/workplace/autoShorts/short-video-maker/short-video-maker/.kittify/scripts/bash/check-prerequisites.sh:*)",
-      "Bash(/Users/shinwookkang/evan/workplace/autoShorts/short-video-maker/short-video-maker/.kittify/scripts/bash/tasks-move-to-lane.sh:*)"
+      "Bash(/Users/shinwookkang/evan/workplace/autoShorts/short-video-maker/short-video-maker/.kittify/scripts/bash/tasks-move-to-lane.sh:*)",
+      "Bash(echo:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
