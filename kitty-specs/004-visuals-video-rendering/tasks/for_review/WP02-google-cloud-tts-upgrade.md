@@ -1,5 +1,5 @@
 ---
-lane: "doing"
+lane: "for_review"
 agent: "claude"
 shell_pid: "55189"
 review_status: "acknowledged"
@@ -9,7 +9,7 @@ reviewed_by: "claude-reviewer"
 
 **Work Package ID**: WP02
 **Feature**: 004-visuals-video-rendering
-**Status**: doing
+**Status**: for_review
 **Created**: 2026-01-08
 
 ---
@@ -211,4 +211,5 @@ Test timing parser, fallback logic, error cases with mocked API responses.
 - 2026-01-09T08:00:00Z – claude-reviewer – shell_pid=39332 – lane=for_review – Code review complete: Implementation is well-structured and comprehensive, but has critical test failures due to mock configuration issue. Also found unused import and missing documentation. Returned to planned lane for fixes.
 - 2026-01-09T08:10:00Z – claude – shell_pid=55189 – lane=doing – Acknowledged feedback, started addressing review issues
 - 2026-01-09T08:15:00Z – claude – shell_pid=55189 – lane=doing – Addressed all review feedback: Fixed test mock configuration (refactored vi.mock to properly export TextToSpeechClient), removed unused uuidv4 import, added comment explaining 5000 char Google API limit, added cost documentation to file header. All 22 tests now passing.
+- 2026-01-09T08:20:00Z – claude – shell_pid=55189 – lane=for_review – Ready for re-review after addressing all feedback
 
