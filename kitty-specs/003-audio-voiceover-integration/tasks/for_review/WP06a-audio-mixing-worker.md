@@ -1,8 +1,8 @@
 ---
 work_package_id: "WP06a"
 subtasks: ["T037", "T038", "T039", "T040", "T041", "T042", "T043", "T044"]
-lane: "doing"
-review_status: "acknowledged"
+lane: "for_review"
+review_status: "resubmitted"
 reviewed_by: "claude"
 assignee: "claude"
 agent: "claude"
@@ -19,6 +19,8 @@ history:
     event: Code review complete: 4 critical bugs found - command_complex undefined, fade filters not applied, aloop syntax error. Needs fixes before re-review.
   - date: 2026-01-08T16:00:00Z
     event: Moved to doing lane - Fixing critical bugs from review feedback
+  - date: 2026-01-08T16:30:00Z
+    event: Addressed feedback: Fixed all 4 critical bugs - command_complex → complexFilter, fade filters now applied correctly in both branches, aloop syntax fixed for sample rate independence. Ready for re-review.
 ---
 
 ## Review Feedback
