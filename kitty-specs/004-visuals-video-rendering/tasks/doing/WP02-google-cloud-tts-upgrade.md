@@ -1,8 +1,13 @@
+---
+lane: "doing"
+agent: "claude"
+shell_pid: "39332"
+---
 # Work Package: WP02 - Google Cloud TTS Upgrade
 
 **Work Package ID**: WP02
 **Feature**: 004-visuals-video-rendering
-**Status**: planned
+**Status**: doing
 **Created**: 2026-01-08
 
 ---
@@ -84,3 +89,9 @@ Test timing parser, fallback logic, error cases with mocked API responses.
 **Risk**: API key may exceed quota → Monitor usage, implement caching (Phase 2)
 **Risk**: Word-level timing unavailable for some languages → Fallback documented
 **Risk**: API response format differs for Standard vs Wavenet → Test both voice types
+
+---
+
+## Activity Log
+
+- 2026-01-09T07:33:00Z – claude – shell_pid=39332 – lane=doing – Started implementation
