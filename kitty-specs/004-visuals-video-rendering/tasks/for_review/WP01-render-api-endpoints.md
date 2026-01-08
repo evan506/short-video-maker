@@ -1,5 +1,5 @@
 ---
-lane: "doing"
+lane: "for_review"
 agent: "claude"
 shell_pid: "87856"
 ---
@@ -329,3 +329,5 @@ curl -X POST http://localhost:3000/api/render/jobs/{jobId}/retry \
 ## Activity Log
 
 - 2026-01-08T14:05:14Z – claude – shell_pid=87856 – lane=doing – Started implementation of render API endpoints
+- 2026-01-08T14:30:00Z – claude – shell_pid=87856 – lane=doing – Completed T011-T020: Implemented render-service.ts (540 lines) with job creation, status, cancel, retry; Implemented render-router.ts (380 lines) with 4 API endpoints; Added router to server.ts; Created API integration tests (240 lines)
+- 2026-01-08T22:33:18Z – claude – shell_pid=87856 – lane=for_review – Ready for review
