@@ -171,18 +171,18 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 **Goal**: Implement FFmpeg audio mixing service in worker process
 **User Story**: User Story 2 - Background Music Selection and Audio Mixing
 **Estimated Effort**: 4-6 hours
-**Status**: ✅ **Complete - Pending Review** - All 4 critical bugs fixed, resubmitted for review (see `tasks/for_review/WP06a-audio-mixing-worker.md`)
+**Status**: ✅ **DONE** - See `tasks/done/WP06a-audio-mixing-worker.md`
 
 ### Subtasks
 
-- [ ] **T037**: Install `fluent-ffmpeg` package
-- [ ] **T038**: Create `src/worker/services/audio-mixing.ts` with FFmpeg mixing logic
-- [ ] **T039**: Implement mix function with voiceover/music volume controls (default 0.8/0.4)
-- [ ] **T040**: Add fade-in/fade-out support (configurable duration, default 1-2 seconds)
-- [ ] **T041**: Handle duration mismatch (loop short music, trim/fade long music)
-- [ ] **T042**: Create API route `POST /api/scenes/:sceneId/audio/mix` that creates audio_generation_jobs record
-- [ ] **T043**: Worker polls for jobs with status='pending', processes, updates to 'completed'
-- [ ] **T044**: Upload mixed audio to Supabase Storage as `audio_type='mixed'`
+- [x] **T037**: Install `fluent-ffmpeg` package
+- [x] **T038**: Create `src/worker/services/audio-mixing.ts` with FFmpeg mixing logic
+- [x] **T039**: Implement mix function with voiceover/music volume controls (default 0.8/0.4)
+- [x] **T040**: Add fade-in/fade-out support (configurable duration, default 1-2 seconds)
+- [x] **T041**: Handle duration mismatch (loop short music, trim/fade long music)
+- [x] **T042**: Create API route `POST /api/scenes/:sceneId/audio/mix` that creates audio_generation_jobs record
+- [x] **T043**: Worker polls for jobs with status='pending', processes, updates to 'completed'
+- [x] **T044**: Upload mixed audio to Supabase Storage as `audio_type='mixed'`
 
 ### Dependencies
 - Depends on: WP02 (voiceover exists), WP05 (music selected), WP01 (scene_audio table exists)
