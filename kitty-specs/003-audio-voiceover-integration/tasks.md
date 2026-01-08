@@ -201,13 +201,14 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 **Goal**: Build UI for audio mixing with volume controls and job status
 **User Story**: User Story 2 - Background Music Selection and Audio Mixing
 **Estimated Effort**: 3-4 hours
+**Status**: ✅ **DONE** - See `tasks/done/WP06b-audio-mixer-ui.md`
 
 ### Subtasks
 
-- [ ] **T045**: Create `src/ui/components/audio/AudioMixer.tsx` with volume sliders
-- [ ] **T046**: Add "Mix Audio" button that calls mixing API and shows progress
-- [ ] **T047**: Implement polling or SSE for job status updates
-- [ ] **T048**: Display mixed audio player when job completes
+- [x] **T045**: Create `src/ui/components/audio/AudioMixer.tsx` with volume sliders
+- [x] **T046**: Add "Mix Audio" button that calls mixing API and shows progress
+- [x] **T047**: Implement polling or SSE for job status updates
+- [x] **T048**: Display mixed audio player when job completes
 
 ### Dependencies
 - Depends on: WP02 (voiceover exists), WP05 (music selected), WP06a (mixing worker ready)
