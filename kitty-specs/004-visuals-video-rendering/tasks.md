@@ -24,16 +24,18 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 **Independent Test**: Verify migration runs successfully, tables are created with indexes, and RLS policies enforce user isolation.
 
 **Included Subtasks**:
-- [ ] T001: Create database migration file (`20250108_visuals_video_rendering.sql`)
-- [ ] T002: Add `render_jobs` table with indexes and check constraints
-- [ ] T003: Add `job_steps` table with composite indexes
-- [ ] T004: Add `exports` table with foreign key to `render_jobs`
-- [ ] T005: Extend `scenes` table with `subtitle_timing` (JSONB) and `subtitle_style_preset_id` columns
-- [ ] T006: Create `updated_at` trigger function and attach to `render_jobs`
-- [ ] T007: Enable Row Level Security (RLS) on all new tables
-- [ ] T008: Create RLS policies for user isolation (render_jobs, job_steps, exports)
-- [ ] T009: Create Supabase Storage bucket `exports` with folder structure
-- [ ] T010: Write migration rollback script (drop tables, policies, triggers)
+- [x] T001: Create database migration file (`20250108_visuals_video_rendering.sql`) ✅
+- [x] T002: Add `render_jobs` table with indexes and check constraints ✅
+- [x] T003: Add `job_steps` table with composite indexes ✅
+- [x] T004: Add `exports` table with foreign key to `render_jobs` ✅
+- [x] T005: Extend `scenes` table with `subtitle_timing` (JSONB) and `subtitle_style_preset_id` columns ✅
+- [x] T006: Create `updated_at` trigger function and attach to `render_jobs` ✅
+- [x] T007: Enable Row Level Security (RLS) on all new tables ✅
+- [x] T008: Create RLS policies for user isolation (render_jobs, job_steps, exports) ✅
+- [x] T009: Create Supabase Storage bucket `exports` with folder structure ✅
+- [x] T010: Write migration rollback script (drop tables, policies, triggers) ✅
+
+**Task Prompt**: `tasks/done/WP00-database-storage-setup.md`
 
 **Implementation Sketch**:
 1. Create migration file in `migrations/` directory following naming convention
