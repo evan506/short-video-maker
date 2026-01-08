@@ -107,22 +107,23 @@ export async function mixAudio(options: MixOptions): Promise<MixResult> {
       for (let i = 0; i < loopCount; i++) {
         const streamIndex = i + 1;
         if (i === 0) {
-          filterComplex.push(`[${streamIndex}:a]aloop=loop=-1:size=${musicDuration * 44100}[m0]`);
+          // Use size=2e+09 for infinite loop (sample rate independent)
+          filterComplex.push(`[${streamIndex}:a]aloop=loop=-1:size=2e+09[m0]`);
         } else {
-          filterComplex.push(`[${streamIndex}:a][m0]concat=n=2[v${i}]`);
+          filterComplex.push(`[${streamIndex}:a][m0]concat=n=2:v=0:a=1[mixed${i}]`);
         }
       }
 
-      // Apply volume and fade to mixed music
-      const lastVoiceIndex = loopCount; // Adjust for voiceover at [0]
-      filterComplex.push(`[${lastVoiceIndex}:a]volume=${musicVolume}[m_final]`);
+      // Apply volume to mixed music
+      const lastMixedIndex = loopCount; // Last mixed stream index
+      filterComplex.push(`[${lastMixedIndex}:a]volume=${musicVolume}[m_final]`);
 
       // Mix voiceover and music with fades
-      filterComplex.push('[v][m_final]amix=inputs=2:duration=shortest,volume=2');
-      filterComplex.push(`afade=t=in:st=0:d=${fadeInDuration}`);
-      filterComplex.push(`afade=t=out:st=${voiceoverDuration - fadeOutDuration}:d=${fadeOutDuration}`);
+      filterComplex.push('[v][m_final]amix=inputs=2:duration=shortest,volume=2[mixed]');
+      filterComplex.push(`[mixed]afade=t=in:st=0:d=${fadeInDuration}[fade_in]`);
+      filterComplex.push(`[fade_in]afade=t=out:st=${voiceoverDuration - fadeOutDuration}:d=${fadeOutDuration}`);
 
-      command = command_complex(filterComplex.join(','));
+      command = command.complexFilter(filterComplex);
     } else {
       // Music is longer or equal - trim/fade to match voiceover
       console.log('[AudioMixing] Music is longer or equal, will trim/fade to match voiceover');
@@ -135,12 +136,12 @@ export async function mixAudio(options: MixOptions): Promise<MixResult> {
       const filterComplex = [
         '[0:a]volume=' + voiceoverVolume + '[v]',
         '[1:a]volume=' + musicVolume + '[m]',
-        '[v][m]amix=inputs=2:duration=shortest,volume=2',
-        `afade=t=in:st=0:d=${fadeInDuration}`,
-        `afade=t=out:st=${voiceoverDuration - fadeOutDuration}:d=${fadeOutDuration}`,
+        '[v][m]amix=inputs=2:duration=shortest,volume=2[mixed]',
+        `[mixed]afade=t=in:st=0:d=${fadeInDuration}[fade_in]`,
+        `[fade_in]afade=t=out:st=${voiceoverDuration - fadeOutDuration}:d=${fadeOutDuration}`,
       ];
 
-      command = command_complex(filterComplex.join(','));
+      command = command.complexFilter(filterComplex);
     }
 
     // Output format: MP3 128kbps, 44.1kHz
