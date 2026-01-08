@@ -1,8 +1,8 @@
 ---
 work_package_id: "WP06a"
 subtasks: ["T037", "T038", "T039", "T040", "T041", "T042", "T043", "T044"]
-lane: "planned"
-review_status: "has_feedback"
+lane: "doing"
+review_status: "acknowledged"
 reviewed_by: "claude"
 assignee: "claude"
 agent: "claude"
@@ -17,6 +17,8 @@ history:
     event: Implementation complete - All 8 subtasks implemented, ready for review
   - date: 2026-01-08T15:00:00Z
     event: Code review complete: 4 critical bugs found - command_complex undefined, fade filters not applied, aloop syntax error. Needs fixes before re-review.
+  - date: 2026-01-08T16:00:00Z
+    event: Moved to doing lane - Fixing critical bugs from review feedback
 ---
 
 ## Review Feedback
