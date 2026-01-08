@@ -1,15 +1,15 @@
 ---
-lane: "planned"
+lane: "doing"
 agent: "claude"
-shell_pid: "39332"
-review_status: "has_feedback"
+shell_pid: "55189"
+review_status: "acknowledged"
 reviewed_by: "claude-reviewer"
 ---
 # Work Package: WP02 - Google Cloud TTS Upgrade
 
 **Work Package ID**: WP02
 **Feature**: 004-visuals-video-rendering
-**Status**: planned
+**Status**: doing
 **Created**: 2026-01-08
 
 ---
@@ -209,3 +209,4 @@ Test timing parser, fallback logic, error cases with mocked API responses.
 - 2026-01-09T07:45:00Z – claude – shell_pid=39332 – lane=doing – Completed T021-T030: Installed @google-cloud/text-to-speech dependency; Created google-tts-service.ts (550 lines) with word-level timing extraction, sentence-level fallback, retry logic with exponential backoff, API quota error handling; Created comprehensive unit tests (450 lines) covering timing parser, fallback logic, retry behavior, error cases, duration estimation, and database storage
 - 2026-01-09T07:50:00Z – claude – shell_pid=39332 – lane=for_review – Ready for review
 - 2026-01-09T08:00:00Z – claude-reviewer – shell_pid=39332 – lane=for_review – Code review complete: Implementation is well-structured and comprehensive, but has critical test failures due to mock configuration issue. Also found unused import and missing documentation. Returned to planned lane for fixes.
+- 2026-01-09T08:10:00Z – claude – shell_pid=55189 – lane=doing – Acknowledged feedback, started addressing review issues
