@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: Music Library API
+  version: 1.0.0
+paths:
+  /api/v1/music/library:
+    get:
+      summary: List background music
+      tags: [Music Library]
+      parameters:
+        - name: mood
+          in: query
+          schema:
+            type: string
+            enum: [upbeat, calm, dramatic, inspirational]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Music list
+  /api/v1/scenes/{sceneId}/music:
+    post:
+      summary: Assign music to scene
+      tags: [Music Library]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [musicId]
+              properties:
+                musicId:
+                  type: string
+                  format: uuid
+                volume:
+                  type: number
+                  default: 0.4
+      responses:
+        '200':
+          description: Music assigned

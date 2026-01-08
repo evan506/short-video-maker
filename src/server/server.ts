@@ -9,6 +9,7 @@ import { ShortCreator } from "../short-creator/ShortCreator";
 import { APIRouter } from "./routers/rest";
 import { MCPRouter } from "./routers/mcp";
 import { EditorRouter } from "./routers/editor-router";
+import audioRouter from "./routers/audio-router";
 import { logger } from "../logger";
 import { Config } from "../config";
 
@@ -57,6 +58,7 @@ export class Server {
     this.app.use("/api", apiRouter.router);
     this.app.use("/mcp", mcpRouter.router);
     this.app.use("/api/v1/editor", editorRouter.router);
+    this.app.use("/api/v1", audioRouter);
 
     // Serve static files from the UI build
     this.app.use(express.static(path.join(__dirname, "../../dist/ui")));

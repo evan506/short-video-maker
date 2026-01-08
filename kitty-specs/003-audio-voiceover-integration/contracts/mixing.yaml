@@ -1,0 +1,62 @@
+openapi: 3.0.3
+info:
+  title: Audio Mixing API
+  version: 1.0.0
+paths:
+  /api/v1/scenes/{sceneId}/audio/mix:
+    post:
+      summary: Mix scene audio
+      tags: [Audio Mixing]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                voiceoverVolume:
+                  type: number
+                  default: 0.8
+                musicVolume:
+                  type: number
+                  default: 0.4
+      responses:
+        '200':
+          description: Mixing job started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+  /api/v1/scenes/{sceneId}/audio/status:
+    get:
+      summary: Check audio mixing status
+      tags: [Audio Mixing]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: jobId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job status
