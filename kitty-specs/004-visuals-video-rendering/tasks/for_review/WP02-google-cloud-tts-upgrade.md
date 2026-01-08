@@ -1,5 +1,5 @@
 ---
-lane: "doing"
+lane: "for_review"
 agent: "claude"
 shell_pid: "39332"
 ---
@@ -7,7 +7,7 @@ shell_pid: "39332"
 
 **Work Package ID**: WP02
 **Feature**: 004-visuals-video-rendering
-**Status**: doing
+**Status**: for_review
 **Created**: 2026-01-08
 
 ---
@@ -95,3 +95,5 @@ Test timing parser, fallback logic, error cases with mocked API responses.
 ## Activity Log
 
 - 2026-01-09T07:33:00Z – claude – shell_pid=39332 – lane=doing – Started implementation
+- 2026-01-09T07:45:00Z – claude – shell_pid=39332 – lane=doing – Completed T021-T030: Installed @google-cloud/text-to-speech dependency; Created google-tts-service.ts (550 lines) with word-level timing extraction, sentence-level fallback, retry logic with exponential backoff, API quota error handling; Created comprehensive unit tests (450 lines) covering timing parser, fallback logic, retry behavior, error cases, duration estimation, and database storage
+- 2026-01-09T07:50:00Z – claude – shell_pid=39332 – lane=for_review – Ready for review
