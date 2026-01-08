@@ -1,7 +1,7 @@
 ---
 work_package_id: "WP06a"
 subtasks: ["T037", "T038", "T039", "T040", "T041", "T042", "T043", "T044"]
-lane: "doing"
+lane: "for_review"
 assignee: "claude"
 agent: "claude"
 shell_pid: "1069"
@@ -11,6 +11,8 @@ history:
     event: Created from WP06 split
   - date: 2026-01-08T13:00:00Z
     event: Moved to doing lane - Started implementation
+  - date: 2026-01-08T14:30:00Z
+    event: Implementation complete - All 8 subtasks implemented, ready for review
 ---
 
 # WP06a: Audio Mixing Worker (Backend)
