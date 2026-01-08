@@ -1,8 +1,14 @@
 ---
 work_package_id: "WP07"
 subtasks: ["T049", "T050", "T051", "T052", "T053", "T054", "T055", "T056", "T057"]
-lane: "planned"
+lane: "doing"
+assignee: "claude"
+agent: "claude"
+shell_pid: "1069"
 title: "Batch Voiceover Generation"
+history:
+  - date: 2026-01-08
+    event: Moved to doing lane - Started implementation
 ---
 
 # WP07: Batch Voiceover Generation
