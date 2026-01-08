@@ -10,6 +10,7 @@ import { APIRouter } from "./routers/rest";
 import { MCPRouter } from "./routers/mcp";
 import { EditorRouter } from "./routers/editor-router";
 import audioRouter from "./routers/audio-router";
+import renderRouter from "./routers/render-router";
 import { logger } from "../logger";
 import { Config } from "../config";
 
@@ -59,6 +60,7 @@ export class Server {
     this.app.use("/mcp", mcpRouter.router);
     this.app.use("/api/v1/editor", editorRouter.router);
     this.app.use("/api/v1", audioRouter);
+    this.app.use("/api/v1/render", renderRouter);
 
     // Serve static files from the UI build
     this.app.use(express.static(path.join(__dirname, "../../dist/ui")));
