@@ -250,6 +250,122 @@ router.post('/scenes/tts/batch', async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/v1/scenes/:sceneId/audio/mix
+ *
+ * Create audio mixing job for a scene
+ *
+ * Request body:
+ * {
+ *   "voiceoverVolume": number;  // Optional, default 0.8
+ *   "musicVolume": number;     // Optional, default 0.4
+ *   "musicId": string;          // Required - background music track ID
+ *   "fadeInDuration": number;   // Optional, default 1 second
+ *   "fadeOutDuration": number;  // Optional, default 1 second
+ * }
+ *
+ * Response:
+ * {
+ *   "jobId": string;     // Job record ID
+ *   "status": string;    // "pending"
+ * }
+ */
+router.post('/scenes/:sceneId/audio/mix', async (req: Request, res: Response) => {
+  try {
+    const { sceneId } = req.params;
+    const {
+      voiceoverVolume = 0.8,
+      musicVolume = 0.4,
+      musicId,
+      fadeInDuration = 1,
+      fadeOutDuration = 1,
+    } = req.body;
+
+    // Validate musicId
+    if (!musicId) {
+      res.status(400).json({ error: 'Music ID is required' });
+      return;
+    }
+
+    // Fetch scene to get project_id
+    const { data: scene, error: sceneError } = await supabase
+      .from('scenes')
+      .select('project_id')
+      .eq('id', sceneId)
+      .single();
+
+    if (sceneError || !scene) {
+      res.status(404).json({ error: 'Scene not found' });
+      return;
+    }
+
+    const projectId = scene.project_id;
+
+    // Fetch scene audio records to verify voiceover exists
+    const { data: voiceoverAudio, error: voiceoverError } = await supabase
+      .from('scene_audio')
+      .select('storage_url')
+      .eq('scene_id', sceneId)
+      .eq('audio_type', 'voiceover')
+      .single();
+
+    if (voiceoverError || !voiceoverAudio) {
+      res.status(400).json({ error: 'Voiceover not found. Please generate voiceover first.' });
+      return;
+    }
+
+    // Fetch music track
+    const { data: musicTrack, error: musicError } = await supabase
+      .from('background_music')
+      .select('storage_url')
+      .eq('id', musicId)
+      .single();
+
+    if (musicError || !musicTrack) {
+      res.status(404).json({ error: 'Music track not found' });
+      return;
+    }
+
+    // Create audio_generation_jobs record
+    const { data: job, error: jobError } = await supabase
+      .from('audio_generation_jobs')
+      .insert({
+        scene_id: sceneId,
+        job_type: 'mixing',
+        status: 'pending',
+        options: {
+          voiceoverVolume,
+          musicVolume,
+          musicId,
+          fadeInDuration,
+          fadeOutDuration,
+          voiceoverUrl: voiceoverAudio.storage_url,
+          musicUrl: musicTrack.storage_url,
+        },
+      })
+      .select('id')
+      .single();
+
+    if (jobError || !job) {
+      throw jobError || new Error('Failed to create job');
+    }
+
+    // TODO: Trigger worker to process job (not implemented in this work package)
+    console.log(`[AudioRouter] Created mixing job ${job.id} for scene ${sceneId}`);
+
+    res.status(200).json({
+      jobId: job.id,
+      status: 'pending',
+    });
+  } catch (error: any) {
+    console.error('[AudioRouter] Audio mixing job creation failed:', error);
+    res.status(500).json({
+      error: 'Failed to create mixing job',
+      message: error.message,
+    });
+  }
+});
+
+/**
  * GET /api/v1/scenes/:sceneId/audio/status
  *
  * Check audio generation job status
