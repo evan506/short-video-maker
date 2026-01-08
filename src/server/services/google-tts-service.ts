@@ -10,11 +10,15 @@
  * - Retry logic with exponential backoff (max 3 attempts)
  * - Graceful handling of API quota errors (HTTP 429)
  *
+ * Cost Estimate (Standard voices):
+ * - $4.00 per 1 million characters
+ * - Typical 100-word scene (~500 characters) costs ~$0.002 (0.2 cents)
+ * - Well below the 2 cent per render requirement
+ *
  * @see https://cloud.google.com/text-to-speech/docs
  */
 
 import textToSpeech from '@google-cloud/text-to-speech';
-import { v4 as uuidv4 } from 'cuid';
 
 /**
  * Google Cloud TTS client instance
@@ -169,6 +173,7 @@ export async function generateVoiceoverWithTimings(
 
   if (text.length > 5000) {
     throw new Error('Text too long (max 5000 characters for Google Cloud TTS)');
+    // Note: 5000 is the maximum request size limit for Google Cloud TTS synthesizeSpeech API
   }
 
   // Merge with defaults
@@ -429,8 +434,9 @@ export function getRecommendedVoices(): string[] {
  */
 export function isValidVoiceId(voiceId: string): boolean {
   // Google Cloud TTS voice IDs follow pattern: xx-XX-Type-X
-  // e.g., en-US-Neural2-A, en-GB-Wavenet-B
-  return /^[a-z]{2}-[A-Z]{2}-[A-Z][a-zA-Z]+[0-9]-[A-Z]$/.test(voiceId);
+  // e.g., en-US-Neural2-A, en-GB-Wavenet-B, en-IN-Standard-A
+  return /^[a-z]{2}-[A-Z]{2}-[A-Z][a-zA-Z]+[0-9]-[A-Z]$/.test(voiceId) ||
+         /^[a-z]{2}-[A-Z]{2}-[A-Z][a-z]+-[A-Z]$/.test(voiceId); // For "Standard" voices
 }
 
 /**
