@@ -226,18 +226,19 @@ Implement end-to-end audio generation using Edge TTS (free), curated background 
 **Goal**: Enable batch TTS generation for all project scenes
 **User Story**: User Story 3 - Batch Voiceover Generation for All Scenes
 **Estimated Effort**: 4-6 hours
+**Status**: ✅ **DONE** - See `tasks/done/WP07-batch-generation.md`
 
 ### Subtasks
 
-- [ ] **T049**: Add "Generate All Voiceovers" button to storyboard header
-- [ ] **T050**: Create API route `POST /api/scenes/tts/batch` that iterates all project scenes
-- [ ] **T051**: Generate one audio_generation_jobs record per scene (status='pending')
-- [ ] **T052**: Worker processes jobs in parallel (respecting concurrency limits)
-- [ ] **T053**: Create `src/ui/components/audio/BatchVoiceoverGenerator.tsx` with progress overlay
-- [ ] **T054**: Display "X/Y scenes generated" progress counter
-- [ ] **T055**: Show per-scene status (pending/processing/completed/failed)
-- [ ] **T056**: Handle failures gracefully - continue with remaining scenes
-- [ ] **T057**: Provide "Retry Failed Scenes" button after batch completes
+- [x] **T049**: Add "Generate All Voiceovers" button to storyboard header
+- [x] **T050**: Create API route `POST /api/scenes/tts/batch` that iterates all project scenes
+- [x] **T051**: Generate one audio_generation_jobs record per scene (status='pending')
+- [x] **T052**: Worker processes jobs in parallel (respecting concurrency limits)
+- [x] **T053**: Create `src/ui/components/audio/BatchVoiceoverGenerator.tsx` with progress overlay
+- [x] **T054**: Display "X/Y scenes generated" progress counter
+- [x] **T055**: Show per-scene status (pending/processing/completed/failed)
+- [x] **T056**: Handle failures gracefully - continue with remaining scenes
+- [x] **T057**: Provide "Retry Failed Scenes" button after batch completes
 
 ### Dependencies
 - Depends on: WP02 (TTS service), WP04 (preview player UI)
