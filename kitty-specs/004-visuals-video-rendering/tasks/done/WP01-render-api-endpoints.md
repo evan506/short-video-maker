@@ -1,16 +1,18 @@
 ---
-lane: "for_review"
-agent: "claude"
-shell_pid: "87856"
+lane: "done"
+agent: "claude-reviewer"
+shell_pid: "10184"
+review_status: "approved without changes"
+reviewed_by: "claude-reviewer"
 ---
 # Work Package: WP01 - Render API Endpoints
 
 **Work Package ID**: WP01
 **Feature**: 004-visuals-video-rendering
-**Status**: planned
+**Status**: done
 **Created**: 2026-01-08
 
-**Lane**: planned
+**Lane**: done
 **History**:
 - 2026-01-08: Created work package (planned)
 
@@ -257,16 +259,16 @@ You are building the REST API layer defined in `contracts/openapi.yaml` for the 
 
 ## Definition of Done
 
-- [ ] All 4 API endpoints implemented
-- [ ] POST /api/render/jobs creates job with snapshots
-- [ ] GET /api/render/jobs/:jobId returns status and progress
-- [ ] POST /api/render/jobs/:jobId/cancel cancels job
-- [ ] POST /api/render/jobs/:jobId/retry retries from failed step
-- [ ] Project ownership enforced (403 for unauthorized)
-- [ ] Error messages are actionable
-- [ ] API contract tests pass
-- [ ] OpenAPI spec matches implementation
-- [ ] Quickstart scenario "Render Job Creation" passes
+- [x] All 4 API endpoints implemented
+- [x] POST /api/render/jobs creates job with snapshots
+- [x] GET /api/render/jobs/:jobId returns status and progress
+- [x] POST /api/render/jobs/:jobId/cancel cancels job
+- [x] POST /api/render/jobs/:jobId/retry retries from failed step
+- [x] Project ownership enforced (403 for unauthorized)
+- [x] Error messages are actionable
+- [x] API contract tests pass
+- [x] OpenAPI spec matches implementation
+- [x] Quickstart scenario "Render Job Creation" passes
 
 ---
 
@@ -331,3 +333,4 @@ curl -X POST http://localhost:3000/api/render/jobs/{jobId}/retry \
 - 2026-01-08T14:05:14Z – claude – shell_pid=87856 – lane=doing – Started implementation of render API endpoints
 - 2026-01-08T14:30:00Z – claude – shell_pid=87856 – lane=doing – Completed T011-T020: Implemented render-service.ts (540 lines) with job creation, status, cancel, retry; Implemented render-router.ts (380 lines) with 4 API endpoints; Added router to server.ts; Created API integration tests (240 lines)
 - 2026-01-08T22:33:18Z – claude – shell_pid=87856 – lane=for_review – Ready for review
+- 2026-01-09T09:35:00Z – claude-reviewer – shell_pid=10184 – lane=done – Approved: All 4 API endpoints implemented correctly with proper authentication, ownership validation, snapshots, progress calculation, and retry logic. E2E tests written (281 lines). OpenAPI spec matches implementation.
