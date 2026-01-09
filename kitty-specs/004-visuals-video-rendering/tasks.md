@@ -229,16 +229,16 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 **Independent Test**: Deploy worker to ECS, submit render job, and verify worker picks up job and processes steps.
 
 **Included Subtasks**:
-- [ ] T041: Create Dockerfile for Remotion worker (Node.js 20, FFmpeg, Remotion CLI)
-- [ ] T042: Initialize Remotion project (`src/worker/remotion/`)
-- [ ] T043: Create `Root.tsx` with composition registration
-- [ ] T044: Implement database polling loop with `FOR UPDATE SKIP LOCKED` dequeue
-- [ ] T045: Create `src/server/workers/render-worker.ts` main worker process
-- [ ] T046: Implement job state machine (queued → running → succeeded/failed/canceled)
-- [ ] T047: Add step processing logic (TTS → subtitles → media → render)
-- [ ] T048: Implement stalled job reaper (checks for jobs stuck >15 minutes)
-- [ ] T049: Add health check endpoint for ECS load balancer
-- [ ] T050: Write worker deployment manifest (ECS task definition)
+- [x] T041: Create Dockerfile for Remotion worker (Node.js 20, FFmpeg, Remotion CLI) ✅
+- [x] T042: Initialize Remotion project (`src/worker/remotion/`) ✅
+- [x] T043: Create `Root.tsx` with composition registration ✅
+- [x] T044: Implement database polling loop with `FOR UPDATE SKIP LOCKED` dequeue ✅
+- [x] T045: Create `src/server/workers/render-worker.ts` main worker process ✅
+- [x] T046: Implement job state machine (queued → running → succeeded/failed/canceled) ✅
+- [x] T047: Add step processing logic (TTS → subtitles → media → render) ✅
+- [x] T048: Implement stalled job reaper (checks for jobs stuck >15 minutes) ✅
+- [x] T049: Add health check endpoint for ECS load balancer ✅
+- [x] T050: Write worker deployment manifest (ECS task definition) ✅
 
 **Implementation Sketch**:
 1. Create Dockerfile with Node.js base image, install FFmpeg, copy Remotion source
