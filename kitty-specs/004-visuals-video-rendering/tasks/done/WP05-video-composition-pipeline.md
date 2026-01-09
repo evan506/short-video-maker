@@ -11,6 +11,9 @@ reviewed_by: "claude"
 **Feature**: 004-visuals-video-rendering
 **Status**: done
 **Created**: 2026-01-08
+**Assignee**: claude
+**Agent**: claude
+**Shell PID**: 30443
 
 **Lane**: done
 **History**:

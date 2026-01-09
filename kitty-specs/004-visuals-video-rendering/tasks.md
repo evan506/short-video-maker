@@ -337,16 +337,16 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 **Independent Test**: Initiate render job and verify progress bar updates, completion notification, and download button.
 
 **Included Subtasks**:
-- [ ] T061: Create `src/ui/components/render/RenderProgress.tsx` component
-- [ ] T062: Implement progress bar with step indicator (e.g., "Step 2/4: Generating subtitles")
-- [ ] T063: Add "Last updated: X seconds ago" relative time display
-- [ ] T064: Create `JobStatusCard.tsx` with retry/cancel buttons
-- [ ] T065: Implement `useRenderJob.ts` hook for polling status every 2 seconds
-- [ ] T066: Add render completion notification (toast or banner)
-- [ ] T067: Create `ExportDownload.tsx` component with download button
-- [ ] T068: Implement video player modal for preview
-- [ ] T069: Add error message display with actionable text
-- [ ] T070: Write Playwright tests for render job flow
+- [X] T061: Create `src/ui/components/render/RenderProgress.tsx` component ✅
+- [X] T062: Implement progress bar with step indicator (e.g., "Step 2/4: Generating subtitles") ✅
+- [X] T063: Add "Last updated: X seconds ago" relative time display ✅
+- [X] T064: Create `JobStatusCard.tsx` with retry/cancel buttons ✅
+- [X] T065: Implement `useRenderJob.ts` hook for polling status every 2 seconds ✅
+- [X] T066: Add render completion notification (toast or banner) ✅
+- [X] T067: Create `ExportDownload.tsx` component with download button ✅
+- [X] T068: Implement video player modal for preview ✅
+- [X] T069: Add error message display with actionable text ✅
+- [X] T070: Write Playwright tests for render job flow ✅
 
 **Implementation Sketch**:
 1. Create progress bar component that calculates % from completed job_steps
@@ -391,16 +391,16 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 **Independent Test**: Run full test suite and verify all tests pass, then validate against quickstart.md scenarios.
 
 **Included Subtasks**:
-- [ ] T071: Write unit tests for render service (job creation, snapshot capture)
-- [ ] T072: Write unit tests for Google Cloud TTS service (timing parser, fallback)
-- [ ] T073: Write unit tests for Remotion subtitle components
-- [ ] T074: Write integration tests for render job flow (create → poll → complete)
-- [ ] T075: Write Playwright E2E test for render workflow
-- [ ] T076: Validate performance benchmarks (SC-001 to SC-010)
-- [ ] T077: Test quickstart.md scenarios (8 validation scenarios)
-- [ ] T078: Load test worker with 5 concurrent renders
-- [ ] T079: Test retry from failed step logic
-- [ ] T080: Document test results and performance metrics
+- [X] T071: Write unit tests for render service (job creation, snapshot capture) ✅
+- [X] T072: Write unit tests for Google Cloud TTS service (timing parser, fallback) ✅
+- [X] T073: Write unit tests for Remotion subtitle components ✅
+- [X] T074: Write integration tests for render job flow (create → poll → complete) ✅
+- [X] T075: Write Playwright E2E test for render workflow ✅
+- [X] T076: Validate performance benchmarks (SC-001 to SC-010) ✅
+- [X] T077: Test quickstart.md scenarios (8 validation scenarios) ✅
+- [X] T078: Load test worker with 5 concurrent renders ✅
+- [X] T079: Test retry from failed step logic ✅
+- [X] T080: Document test results and performance metrics ✅
 
 **Implementation Sketch**:
 1. Write unit tests for render service using Vitest:

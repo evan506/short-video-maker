@@ -37,7 +37,10 @@
       "Skill(spec-kitty.tasks)",
       "Bash(.kittify/scripts/bash/mark-task-status.sh:*)",
       "Bash(test:*)",
-      "Bash(.kittify/scripts/bash/tasks-move-to-lane.sh:*)"
+      "Bash(.kittify/scripts/bash/tasks-move-to-lane.sh:*)",
+      "Bash(REVIEWER_AGENT=\"claude-reviewer\" REVIEWER_SHELL_PID=$$ python3:*)",
+      "Bash(../../../short-video-maker/.kittify/scripts/bash/accept-feature.sh:*)",
+      "Bash(for:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
