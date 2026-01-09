@@ -40,7 +40,8 @@
       "Bash(.kittify/scripts/bash/tasks-move-to-lane.sh:*)",
       "Bash(REVIEWER_AGENT=\"claude-reviewer\" REVIEWER_SHELL_PID=$$ python3:*)",
       "Bash(../../../short-video-maker/.kittify/scripts/bash/accept-feature.sh:*)",
-      "Bash(for:*)"
+      "Bash(for:*)",
+      "Bash(../../../short-video-maker/.kittify/scripts/bash/check-prerequisites.sh:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

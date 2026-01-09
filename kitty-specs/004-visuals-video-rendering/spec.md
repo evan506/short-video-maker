@@ -159,7 +159,7 @@ A creator selects the "Karaoke" subtitle preset which highlights each word as it
 - System MUST support custom font size, color, and background opacity per preset
 
 **FR-002: Subtitle Timing Synchronization**
-- System MUST extract word-level timestamps from Google Cloud TSS API responses (timemarks array)
+- System MUST extract word-level timestamps from Google Cloud TTS API responses (timemarks array)
 - System MUST store timing data in `scenes.subtitle_timing` JSONB column with format: `[{word, start_ms, end_ms}, ...]`
 - System MUST fall back to sentence-level highlighting if word-level timestamps unavailable
 - System MUST sync subtitle highlights with audio timeline using Remotion's `useCurrentFrame()` and `fps` constants

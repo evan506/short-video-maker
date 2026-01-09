@@ -82,7 +82,7 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 - [x] T014: Implement `POST /api/render/jobs/:jobId/cancel` (cancellation endpoint)
 - [x] T015: Implement `POST /api/render/jobs/:jobId/retry` (retry from failed step)
 - [x] T016: Create `src/server/services/render-service.ts` for job creation logic
-- [x] T017: Implement snapshot capture logic (storyboard_script_version, voice_id, script_version)
+- [x] T017: Implement snapshot capture logic (storyboard_script_version, voice_id, script_version) in `src/server/services/render-service.ts`
 - [x] T018: Add request validation middleware (project ownership checks)
 - [x] T019: Implement error responses with actionable messages (e.g., "Pexels download failed")
 - [x] T020: Write API contract tests using OpenAPI spec
@@ -346,7 +346,7 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 - [X] T067: Create `ExportDownload.tsx` component with download button ✅
 - [X] T068: Implement video player modal for preview ✅
 - [X] T069: Add error message display with actionable text ✅
-- [X] T070: Write Playwright tests for render job flow ✅
+- [X] T070: Write Playwright E2E tests for render UI flow (progress bar, notifications, cancel/retry buttons) ✅
 
 **Implementation Sketch**:
 1. Create progress bar component that calculates % from completed job_steps
@@ -395,7 +395,7 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 - [X] T072: Write unit tests for Google Cloud TTS service (timing parser, fallback) ✅
 - [X] T073: Write unit tests for Remotion subtitle components ✅
 - [X] T074: Write integration tests for render job flow (create → poll → complete) ✅
-- [X] T075: Write Playwright E2E test for render workflow ✅
+- [X] T075: Write Playwright E2E test for full render workflow (create job → poll status → wait for completion → download video) ✅
 - [X] T076: Validate performance benchmarks (SC-001 to SC-010) ✅
 - [X] T077: Test quickstart.md scenarios (8 validation scenarios) ✅
 - [X] T078: Load test worker with 5 concurrent renders ✅

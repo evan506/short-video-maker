@@ -68,44 +68,20 @@ Transform storyboarded scenes into polished MP4 videos by combining selected med
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-### Principles from `.kittify/missions/software-dev/constitution/principles.md`
+**Compliance Status**: ✅ **ALL PRINCIPLES VALIDATED**
 
-1. **Code-First Video Approach** ✅ PASS
-   - Using Remotion enables "code-first" video definition (React components vs imperative FFmpeg)
-   - Frontend preview and final render use same components, ensuring WYSIWYG consistency
+Constitution compliance verified during planning phase against all 6 core principles from `../../../.kittify/missions/software-dev/constitution/principles.md`:
 
-2. **Incremental Complexity** ✅ PASS
-   - MVP uses database polling (simpler) before BullMQ+Redis (Phase 2)
-   - Single worker before auto-scaling
-   - 3 subtitle presets (Minimal, Highlight, Karaoke) before advanced customization
+1. **User Experience First** ✅ - Progress tracking, actionable error messages, recovery paths
+2. **Snapshot-Based Consistency** ✅ - Render jobs capture storyboard state, voice_id, script version
+3. **Test-Driven Quality** ✅ - Contract tests for external APIs, integration tests, unit tests
+4. **Async Job Resilience** ✅ - Job queue with step-level progress, retry logic, stalled job reaper
+5. **Media Source Flexibility** ✅ - Provider-agnostic abstraction, automatic fallback
+6. **Voice Selection & Preview** ✅ - Voice library, project-level selection, render-time snapshot
 
-3. **Fail-Safe Defaults** ✅ PASS
-   - Karaoke falls back to sentence-level highlighting if word-level timing unavailable
-   - Worker retries failed steps from failure point (not from beginning)
-   - Stalled job reaper prevents zombie jobs from blocking queue
-   - Media URL expiration: Worker retries with alternate provider or prompts user upload
+**Post-Design Re-evaluation**: After Phase 1 design (data-model.md, contracts/), all principles remain valid. No conflicts found.
 
-4. **Observable State** ✅ PASS
-   - Render jobs have explicit states (queued/running/succeeded/failed/canceled)
-   - Job steps provide granular progress (TTS → Subtitles → Media → Render)
-   - Progress API returns `updated_at` timestamp for "Last updated: X seconds ago" UI
-   - Error messages are actionable (e.g., "Pexels download failed. Click to retry with Pixabay.")
-
-5. **Testability** ✅ PASS
-   - Remotion components can be tested with Vitest (unit tests)
-   - API endpoints have contract tests (OpenAPI spec)
-   - Worker logic can be tested with mock database
-   - E2E tests cover full render job flow (create → poll → download)
-
-6. **Security Boundaries** ✅ PASS
-   - RLS policies enforce user isolation (only project owner can download exports)
-   - Worker uses service role key (elevated privileges for storage uploads)
-   - Signed URLs with 7-day expiry prevent unauthorized access
-   - Snapshots (storyboard_script_version_snapshot, voice_id_snapshot) prevent mid-render tampering
-
-### Post-Design Re-evaluation
-
-After Phase 1 design (data-model.md, contracts/), all principles remain valid. No conflicts found.
+For full principle definitions, see: `../../../.kittify/missions/software-dev/constitution/principles.md`
 
 ## Project Structure
 
