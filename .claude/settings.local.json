@@ -36,7 +36,8 @@
       "Bash(echo:*)",
       "Skill(spec-kitty.tasks)",
       "Bash(.kittify/scripts/bash/mark-task-status.sh:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(.kittify/scripts/bash/tasks-move-to-lane.sh:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
