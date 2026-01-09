@@ -286,16 +286,16 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 **Independent Test**: Render a 3-scene project and verify MP4 plays correctly with subtitles and audio.
 
 **Included Subtasks**:
-- [ ] T051: Create `VideoComposition.tsx` main composition component
-- [ ] T052: Create `Scene.tsx` component for individual scenes
-- [ ] T053: Implement `<Video>` component for media playback with loop/trim logic
-- [ ] T054: Implement `<Audio>` component for mixed audio playback
-- [ ] T055: Integrate subtitle components (Minimal, Highlight, Karaoke) as overlays
-- [ ] T056: Implement scene sequencing with `<Sequence>` component
-- [ ] T057: Handle missing media (colored fallback with narration text)
-- [ ] T058: Handle missing audio (silent video)
-- [ ] T059: Configure Remotion render settings (codec H.264, AAC audio, 30fps)
-- [ ] T060: Write `src/server/workers/composite-worker.ts` to orchestrate rendering
+- [x] T051: Create `VideoComposition.tsx` main composition component
+- [x] T052: Create `Scene.tsx` component for individual scenes
+- [x] T053: Implement `<Video>` component for media playback with loop/trim logic
+- [x] T054: Implement `<Audio>` component for mixed audio playback
+- [x] T055: Integrate subtitle components (Minimal, Highlight, Karaoke) as overlays
+- [x] T056: Implement scene sequencing with `<Sequence>` component
+- [x] T057: Handle missing media (colored fallback with narration text)
+- [x] T058: Handle missing audio (silent video)
+- [x] T059: Configure Remotion render settings (codec H.264, AAC audio, 30fps)
+- [x] T060: Write `src/server/workers/composite-worker.ts` to orchestrate rendering
 
 **Implementation Sketch**:
 1. Create `VideoComposition` that accepts `projectId` and `renderJobId` as props
