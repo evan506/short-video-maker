@@ -178,16 +178,16 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 **Independent Test**: Select a scene, cycle through subtitle presets, and verify visual preview updates immediately.
 
 **Included Subtasks**:
-- [ ] T031: Create `src/ui/components/subtitles/SubtitlePreview.tsx` component
-- [ ] T032: Implement `MinimalSubtitle.tsx` Remotion component (white text, bottom positioning)
-- [ ] T033: Implement `HighlightSubtitle.tsx` Remotion component (background box, rounded corners)
-- [ ] T034: Implement `KaraokeSubtitle.tsx` Remotion component (word-by-word highlighting)
-- [ ] T035: Create `src/ui/hooks/useSubtitlePreview.ts` for timing simulation
-- [ ] T036: Implement timing interpolation logic (frame → milliseconds → active word index)
-- [ ] T037: Add `SubtitlePresetSelector.tsx` dropdown component
-- [ ] T038: Update scene cards to show subtitle preview overlay
-- [ ] T039: Implement "Apply to all scenes" button for bulk preset changes
-- [ ] T040: Write unit tests for Remotion subtitle components
+- [x] T031: Create `src/ui/components/subtitles/SubtitlePreview.tsx` component ✅
+- [x] T032: Implement `MinimalSubtitle.tsx` Remotion component (white text, bottom positioning) ✅
+- [x] T033: Implement `HighlightSubtitle.tsx` Remotion component (background box, rounded corners) ✅
+- [x] T034: Implement `KaraokeSubtitle.tsx` Remotion component (word-by-word highlighting) ✅
+- [x] T035: Create `src/ui/hooks/useSubtitlePreview.ts` for timing simulation ✅
+- [x] T036: Implement timing interpolation logic (frame → milliseconds → active word index) ✅
+- [x] T037: Add `SubtitlePresetSelector.tsx` dropdown component ✅
+- [x] T038: Update scene cards to show subtitle preview overlay ✅
+- [x] T039: Implement "Apply to all scenes" button for bulk preset changes ✅
+- [x] T040: Write unit tests for Remotion subtitle components ✅
 
 **Implementation Sketch**:
 1. Create Remotion components for each preset using `<AbsoluteFill>` for positioning
