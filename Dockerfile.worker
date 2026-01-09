@@ -1,0 +1,64 @@
+# Multi-stage Dockerfile for Remotion Video Rendering Worker
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY . .
+
+# Build TypeScript (if needed)
+RUN npm run build || echo "No build script found"
+
+# Stage 2: Runtime
+FROM node:20-alpine
+
+# Install FFmpeg and runtime dependencies
+RUN apk add --no-cache \
+    ffmpeg \
+    ffmpeg-dev \
+    curl \
+    tzdata \
+    && addgroup -g 1001 -S nodejs \
+    && adduser -S nodejs -u 1001
+
+# Set timezone
+ENV TZ=UTC
+
+# Set working directory
+WORKDIR /app
+
+# Copy from builder stage
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/tsconfig.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/src ./src
+COPY --from=builder --chown=nodejs:nodejs /app/remotion.config.ts ./remotion.config.ts
+
+# Switch to non-root user
+USER nodejs
+
+# Expose health check port
+EXPOSE 9000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:9000/health || exit 1
+
+# Default command: run render worker
+CMD ["node", "dist/server/workers/render-worker.js"]

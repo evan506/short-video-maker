@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  remotion-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: remotion-render-worker
+    environment:
+      - NODE_ENV=development
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - POLL_INTERVAL_MS=2000
+      - STALLED_JOB_THRESHOLD_MINUTES=15
+      - RENDER_TIMEOUT_MINUTES=10
+      - GOOGLE_CLOUD_TTS_KEY=${GOOGLE_CLOUD_TTS_KEY}
+      - PEXELS_API_KEY=${PEXELS_API_KEY}
+    ports:
+      - "9000:9000" # Health check endpoint
+    volumes:
+      - ./src:/app/src
+      - ./dist:/app/dist
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

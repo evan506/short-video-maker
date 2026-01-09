@@ -1,0 +1,103 @@
+{
+  "family": "remotion-render-worker",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "2048",
+  "memory": "4096",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/remotionWorkerTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "remotion-worker",
+      "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/remotion-worker:latest",
+      "cpu": 2048,
+      "memory": 4096,
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/remotion-worker",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "worker",
+          "awslogs-create-group": "true"
+        }
+      },
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "name": "SUPABASE_URL",
+          "value": "https://your-project.supabase.co"
+        },
+        {
+          "name": "SUPABASE_SERVICE_ROLE_KEY",
+          "value": "your-service-role-key"
+        },
+        {
+          "name": "POLL_INTERVAL_MS",
+          "value": "2000"
+        },
+        {
+          "name": "STALLED_JOB_THRESHOLD_MINUTES",
+          "value": "15"
+        },
+        {
+          "name": "RENDER_TIMEOUT_MINUTES",
+          "value": "10"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "SUPABASE_SERVICE_ROLE_KEY",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:supabase-service-role-key"
+        },
+        {
+          "name": "GOOGLE_CLOUD_TTS_KEY",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:google-cloud-tts-key"
+        },
+        {
+          "name": "PEXELS_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:pexels-api-key"
+        }
+      ],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://localhost:9000/health || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      },
+      "ulimits": [
+        {
+          "name": "cpu",
+          "softLimit": 2048,
+          "hardLimit": 2048
+        },
+        {
+          "name": "memory",
+          "softLimit": 4096,
+          "hardLimit": 4096
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "key": "Environment",
+      "value": "production"
+    },
+    {
+      "key": "Project",
+      "value": "short-video-maker"
+    },
+    {
+      "key": "Component",
+      "value": "remotion-worker"
+    }
+  ]
+}
