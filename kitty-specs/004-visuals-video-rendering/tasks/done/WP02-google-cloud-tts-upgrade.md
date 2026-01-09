@@ -1,6 +1,7 @@
 ---
 lane: "done"
 agent: "claude-reviewer"
+assignee: "claude"
 shell_pid: "71493"
 review_status: "approved without changes"
 reviewed_by: "claude-reviewer"
