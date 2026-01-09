@@ -1,0 +1,16 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-09T05:07:39Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "5321c83e1de46bdc0e24930f19a64275a34d2f5f",
+      "branch": "004-visuals-video-rendering",
+      "mode": "pr"
+    }
+  ],
+  "acceptance_mode": "pr",
+  "accepted_at": "2026-01-09T05:07:39Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "5321c83e1de46bdc0e24930f19a64275a34d2f5f"
+}
