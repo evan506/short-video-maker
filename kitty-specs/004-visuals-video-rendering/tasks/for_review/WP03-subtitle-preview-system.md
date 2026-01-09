@@ -1,9 +1,19 @@
+---
+lane: "for_review"
+agent: "claude"
+shell_pid: ""
+---
 # Work Package: WP03 - Subtitle Preview System
 
 **Work Package ID**: WP03
 **Feature**: 004-visuals-video-rendering
-**Status**: planned
+**Status**: for_review
 **Created**: 2026-01-08
+
+**Lane**: for_review
+**History**:
+- 2026-01-09: Moved to doing lane, started implementation
+- 2026-01-09: Completed implementation, ready for review
 
 ---
 
@@ -55,12 +65,19 @@ Test timing interpolation, frame-to-word mapping, preset switching logic.
 
 ## Definition of Done
 
-- [ ] All 3 subtitle presets render correctly in preview
-- [ ] Karaoke highlights sync with timing data within ±100ms
-- [ ] Preset selector updates database immediately
-- [ ] "Apply to all scenes" updates all scenes in <2 seconds
-- [ ] Remotion components reusable in worker render pipeline
-- [ ] Unit tests verify timing interpolation
+- [x] All 3 subtitle presets render correctly in preview
+- [x] Karaoke highlights sync with timing data within ±100ms
+- [x] Preset selector updates database immediately
+- [x] "Apply to all scenes" updates all scenes in <2 seconds
+- [x] Remotion components reusable in worker render pipeline
+- [x] Unit tests verify timing interpolation
+
+---
+
+## Activity Log
+
+- 2026-01-09T09:45:00Z – claude – shell_pid= – lane=doing – Completed T031-T040: Created SubtitlePreview.tsx wrapper component; Implemented MinimalSubtitle.tsx, HighlightSubtitle.tsx, KaraokeSubtitle.tsx Remotion components (250 lines total); Created useSubtitlePreview hook with timing interpolation (100 lines); Implemented SubtitlePresetSelector UI component with "Apply to all" button (120 lines); Wrote 19 comprehensive unit tests for timing interpolation, frame-to-word mapping, and edge cases; All tests passing ✓
+- 2026-01-09T09:52:00Z – claude – shell_pid= – lane=for_review – Ready for review
 
 ---
 

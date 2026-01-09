@@ -76,16 +76,16 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 **Independent Test**: Create render job via API, poll status endpoint, cancel job, and retry failed job.
 
 **Included Subtasks**:
-- [ ] T011: Create `src/server/routes/render-router.ts` with route handlers
-- [ ] T012: Implement `POST /api/render/jobs` (create render job with snapshots)
-- [ ] T013: Implement `GET /api/render/jobs/:jobId` (status polling endpoint)
-- [ ] T014: Implement `POST /api/render/jobs/:jobId/cancel` (cancellation endpoint)
-- [ ] T015: Implement `POST /api/render/jobs/:jobId/retry` (retry from failed step)
-- [ ] T016: Create `src/server/services/render-service.ts` for job creation logic
-- [ ] T017: Implement snapshot capture logic (storyboard_script_version, voice_id, script_version)
-- [ ] T018: Add request validation middleware (project ownership checks)
-- [ ] T019: Implement error responses with actionable messages (e.g., "Pexels download failed")
-- [ ] T020: Write API contract tests using OpenAPI spec
+- [x] T011: Create `src/server/routes/render-router.ts` with route handlers
+- [x] T012: Implement `POST /api/render/jobs` (create render job with snapshots)
+- [x] T013: Implement `GET /api/render/jobs/:jobId` (status polling endpoint)
+- [x] T014: Implement `POST /api/render/jobs/:jobId/cancel` (cancellation endpoint)
+- [x] T015: Implement `POST /api/render/jobs/:jobId/retry` (retry from failed step)
+- [x] T016: Create `src/server/services/render-service.ts` for job creation logic
+- [x] T017: Implement snapshot capture logic (storyboard_script_version, voice_id, script_version)
+- [x] T018: Add request validation middleware (project ownership checks)
+- [x] T019: Implement error responses with actionable messages (e.g., "Pexels download failed")
+- [x] T020: Write API contract tests using OpenAPI spec
 
 **Implementation Sketch**:
 1. Set up Next.js App Router API routes in `src/app/api/render/`
@@ -127,16 +127,16 @@ This document breaks down the Visuals and Video Rendering feature into 8 work pa
 **Independent Test**: Generate TTS audio for a scene and verify word-level timemarks are stored in `scenes.subtitle_timing`.
 
 **Included Subtasks**:
-- [ ] T021: Install `@google-cloud/text-to-speech` dependency
-- [ ] T022: Create `src/server/services/google-tts-service.ts` wrapper
-- [ ] T023: Configure Google Cloud TTS client with API credentials
-- [ ] T024: Implement TTS synthesis with `enableTimepoints: ['WORDS']` parameter
-- [ ] T025: Parse `timepoints` array from API response into word timings
-- [ ] T026: Store word timings in `scenes.subtitle_timing` JSONB column
-- [ ] T027: Implement fallback to sentence-level timing if word timings unavailable
-- [ ] T028: Add retry logic with exponential backoff (max 3 attempts)
-- [ ] T029: Handle API quota errors (HTTP 429) with graceful degradation
-- [ ] T030: Write unit tests for timing parser and fallback logic
+- [x] T021: Install `@google-cloud/text-to-speech` dependency
+- [x] T022: Create `src/server/services/google-tts-service.ts` wrapper
+- [x] T023: Configure Google Cloud TTS client with API credentials
+- [x] T024: Implement TTS synthesis with `enableTimepoints: ['WORDS']` parameter
+- [x] T025: Parse `timepoints` array from API response into word timings
+- [x] T026: Store word timings in `scenes.subtitle_timing` JSONB column
+- [x] T027: Implement fallback to sentence-level timing if word timings unavailable
+- [x] T028: Add retry logic with exponential backoff (max 3 attempts)
+- [x] T029: Handle API quota errors (HTTP 429) with graceful degradation
+- [x] T030: Write unit tests for timing parser and fallback logic
 
 **Implementation Sketch**:
 1. Add Google Cloud TTS SDK to package.json and set up service account credentials
