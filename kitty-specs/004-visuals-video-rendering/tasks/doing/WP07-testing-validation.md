@@ -2,8 +2,17 @@
 
 **Work Package ID**: WP07
 **Feature**: 004-visuals-video-rendering
-**Status**: planned
+**Status**: doing
 **Created**: 2026-01-08
+**Assignee**: claude
+**Agent**: claude
+**Shell PID**: 30443
+
+---
+
+## Activity Log
+
+- 2026-01-09T00:35:00Z – claude – shell_pid=30443 – lane=doing – Started implementation
 
 ---
 
