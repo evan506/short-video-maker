@@ -1,0 +1,680 @@
+openapi: 3.0.3
+info:
+  title: AutoShorts Video Rendering API
+  description: API for async video rendering with Remotion, progress tracking, and MP4 export
+  version: 4.0.0
+  contact:
+    name: AutoShorts Team
+
+servers:
+  - url: http://localhost:3123/api/v1
+    description: Development server
+  - url: https://api.autoshorts.com/api/v1
+    description: Production server
+
+tags:
+  - name: Render
+    description: Video rendering job management
+  - name: Subtitles
+    description: Subtitle preview and selection
+
+paths:
+  /render/jobs:
+    post:
+      tags:
+        - Render
+      summary: Start a new render job
+      description: |
+        Initiates an async video rendering job for a project.
+        Creates render_job record with status='queued' and job_steps records for each processing step.
+        Captures snapshots of project state (scenes version, voice selection) to prevent changes during render.
+      operationId: startRenderJob
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - projectId
+              properties:
+                projectId:
+                  type: string
+                  format: uuid
+                  description: Project ID to render
+                  example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '201':
+          description: Render job created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      jobId:
+                        type: string
+                        format: uuid
+                        example: "770e8400-e29b-41d4-a716-446655440002"
+                      status:
+                        type: string
+                        enum: [queued, running, succeeded, failed, canceled]
+                        example: queued
+                      currentStep:
+                        type: string
+                        enum: [tts_generation, subtitle_generation, media_fetch, render_composite]
+                        example: tts_generation
+                      progress:
+                        type: integer
+                        minimum: 0
+                        maximum: 100
+                        example: 0
+                      snapshots:
+                        type: object
+                        properties:
+                          storyboardScriptVersion:
+                            type: integer
+                            example: 3
+                          voiceId:
+                            type: string
+                            example: "en-US-Wavenet-D"
+                          scriptVersion:
+                            type: integer
+                            example: 5
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: "2026-01-08T10:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Conflict - Project already has a render in progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'RENDER_IN_PROGRESS'
+                  message: 'This project already has a render job in progress. Wait for it to complete or cancel it first.'
+                  jobId: '770e8400-e29b-41d4-a716-446655440002'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /render/jobs/{jobId}:
+    get:
+      tags:
+        - Render
+      summary: Get render job status
+      description: |
+        Retrieves the current status of a render job including progress, step details, and error information.
+        Used by frontend to poll for real-time progress updates (recommended: every 2 seconds).
+      operationId: getRenderJob
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Render job ID
+          example: "770e8400-e29b-41d4-a716-446655440002"
+      responses:
+        '200':
+          description: Render job status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/RenderJobDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /render/jobs/{jobId}/cancel:
+    post:
+      tags:
+        - Render
+      summary: Cancel a render job
+      description: |
+        Cancels a running or queued render job.
+        Worker will stop processing after completing the current step (or immediately if between steps).
+        Temporary files are cleaned up on cancellation.
+      operationId: cancelRenderJob
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Render job ID to cancel
+          example: "770e8400-e29b-41d4-a716-446655440002"
+      responses:
+        '200':
+          description: Render job canceled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      jobId:
+                        type: string
+                        format: uuid
+                        example: "770e8400-e29b-41d4-a716-446655440002"
+                      status:
+                        type: string
+                        enum: [canceled]
+                        example: canceled
+                      canceledAt:
+                        type: string
+                        format: date-time
+                        example: "2026-01-08T10:35:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Job cannot be canceled (already completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'INVALID_STATUS_TRANSITION'
+                  message: 'Cannot cancel a job that is already succeeded or failed'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /render/jobs/{jobId}/retry:
+    post:
+      tags:
+        - Render
+      summary: Retry a failed render job from the failed step
+      description: |
+        Retries a failed render job, resuming from the failed step instead of starting from the beginning.
+        Increments retry_count and preserves original snapshots.
+        Completed steps (e.g., TTS generation if failed at media_fetch) are skipped.
+      operationId: retryRenderJob
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Failed render job ID to retry
+          example: "770e8400-e29b-41d4-a716-446655440002"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromStep:
+                  type: string
+                  enum: [tts_generation, subtitle_generation, media_fetch, render_composite]
+                  description: Step to retry from (optional, defaults to failed step)
+                  example: media_fetch
+      responses:
+        '200':
+          description: Render job retry initiated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      jobId:
+                        type: string
+                        format: uuid
+                        example: "770e8400-e29b-41d4-a716-446655440002"
+                      status:
+                        type: string
+                        enum: [queued, running]
+                        example: queued
+                      retryCount:
+                        type: integer
+                        example: 1
+                      resumedFromStep:
+                        type: string
+                        enum: [tts_generation, subtitle_generation, media_fetch, render_composite]
+                        example: media_fetch
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Job cannot be retried (not in failed state)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'INVALID_STATUS_FOR_RETRY'
+                  message: 'Only failed jobs can be retried'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /render/jobs/{jobId}/export:
+    get:
+      tags:
+        - Render
+      summary: Get exported video download link
+      description: |
+        Retrieves a signed download URL for the rendered MP4 file.
+        Only available for jobs with status='succeeded'.
+        Signed URL expires after 7 days.
+      operationId: getExportDownloadLink
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Completed render job ID
+          example: "770e8400-e29b-41d4-a716-446655440002"
+      responses:
+        '200':
+          description: Download link retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      exportId:
+                        type: string
+                        format: uuid
+                        example: "880e8400-e29b-41d4-a716-446655440003"
+                      downloadUrl:
+                        type: string
+                        format: uri
+                        example: "https://xyz.supabase.storage/v1/object/sign/exports/user123/project456/job789.mp4?token=..."
+                      expiresAt:
+                        type: string
+                        format: date-time
+                        example: "2026-01-15T10:30:00Z"
+                      videoMetadata:
+                        type: object
+                        properties:
+                          durationSec:
+                            type: integer
+                            example: 58
+                          fileSizeBytes:
+                            type: integer
+                            example: 18765432
+                          resolution:
+                            type: string
+                            example: "1080x1920"
+                          format:
+                            type: string
+                            example: "mp4"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '425':
+          description: Too Early - Render job not completed yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'RENDER_NOT_COMPLETED'
+                  message: 'Render job is still in progress. Download link will be available when status=succeeded'
+                  currentStatus: running
+                  currentStep: render_composite
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /subtitles/preview:
+    post:
+      tags:
+        - Subtitles
+      summary: Generate subtitle preview for a scene
+      description: |
+        Generates a preview of how subtitles will appear on a scene for the selected preset.
+        Returns timing data and styled text that frontend can render in real-time.
+        Used for WYSIWYG subtitle editing in storyboard.
+      operationId: generateSubtitlePreview
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sceneId
+                - presetId
+              properties:
+                sceneId:
+                  type: string
+                  format: uuid
+                  description: Scene ID to generate preview for
+                  example: "550e8400-e29b-41d4-a716-446655440000"
+                presetId:
+                  type: string
+                  description: Subtitle preset ID (Minimal/Highlight/Karaoke)
+                  example: "karaoke"
+                narrationOverride:
+                  type: string
+                  description: Optional custom narration text (uses scene narration if not provided)
+                  example: "This steak sizzles perfectly on the grill"
+      responses:
+        '200':
+          description: Subtitle preview generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      sceneId:
+                        type: string
+                        format: uuid
+                        example: "550e8400-e29b-41d4-a716-446655440000"
+                      preset:
+                        type: string
+                        example: karaoke
+                      narrationText:
+                        type: string
+                        example: "This steak sizzles perfectly"
+                      timing:
+                        type: array
+                        description: Word/sentence timing data for Karaoke or null for Minimal/Highlight
+                        items:
+                          type: object
+                          properties:
+                            word:
+                              type: string
+                              example: "This"
+                            start_ms:
+                              type: integer
+                              example: 0
+                            end_ms:
+                              type: integer
+                              example: 200
+                        example: [{"word": "This", "start_ms": 0, "end_ms": 200}, {"word": "steak", "start_ms": 200, "end_ms": 500}]
+                      styles:
+                        type: object
+                        description: CSS styles for rendering the preview
+                        properties:
+                          fontSize:
+                            type: string
+                            example: "36px"
+                          color:
+                            type: string
+                            example: "white"
+                          backgroundColor:
+                            type: string
+                            nullable: true
+                            example: "rgba(0, 0, 0, 0.6)"
+                          position:
+                            type: string
+                            enum: [top, center, bottom]
+                            example: bottom
+                          textAlign:
+                            type: string
+                            example: center
+                      renderedHtml:
+                        type: string
+                        description: Pre-rendered HTML/CSS for preview display
+                        example: "<div style=\"...\">This steak sizzles perfectly</div>"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Scene not found or has no narration text
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: 'SCENE_NOT_FOUND'
+                  message: 'Scene not found or has no narration text to preview'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    RenderJobDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "770e8400-e29b-41d4-a716-446655440002"
+        projectId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [queued, running, succeeded, failed, canceled]
+          example: running
+        currentStep:
+          type: string
+          enum: [tts_generation, subtitle_generation, media_fetch, render_composite]
+          nullable: true
+          example: media_fetch
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 65
+        retryCount:
+          type: integer
+          example: 0
+        snapshots:
+          type: object
+          properties:
+            storyboardScriptVersion:
+              type: integer
+              example: 3
+            voiceId:
+              type: string
+              example: "en-US-Wavenet-D"
+            scriptVersion:
+              type: integer
+              example: 5
+        steps:
+          type: array
+          description: Job step details
+          items:
+            type: object
+            properties:
+              stepName:
+                type: string
+                enum: [tts_generation, subtitle_generation, media_fetch, render_composite]
+                example: tts_generation
+              status:
+                type: string
+                enum: [pending, running, failed, done]
+                example: done
+              startedAt:
+                type: string
+                format: date-time
+                nullable: true
+                example: "2026-01-08T10:31:00Z"
+              endedAt:
+                type: string
+                format: date-time
+                nullable: true
+                example: "2026-01-08T10:32:30Z"
+              log:
+                type: object
+                nullable: true
+                example: {"scenesProcessed": 15, "totalDuration": 45.2}
+        error:
+          type: object
+          nullable: true
+          description: Error details (present only if status='failed')
+          properties:
+            code:
+              type: string
+              example: TTS_FAILED
+            message:
+              type: string
+              example: "Failed to generate voiceover for scene 5. Google Cloud TTS API timeout."
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-01-08T10:30:00Z"
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-01-08T10:30:15Z"
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-01-08T10:35:00Z"
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: "Invalid request parameters"
+            details:
+              type: object
+              additionalProperties: true
+              nullable: true
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: VALIDATION_ERROR
+              message: "Invalid UUID format for projectId"
+
+    Unauthorized:
+      description: Unauthorized - Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: UNAUTHORIZED
+              message: "Missing or invalid authorization token"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: NOT_FOUND
+              message: "Render job not found"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: INTERNAL_ERROR
+              message: "An unexpected error occurred. Please try again later."
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase Auth JWT token (obtained from `supabase.auth.session()`)
