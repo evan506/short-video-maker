@@ -1,9 +1,18 @@
+---
+lane: "doing"
+agent: "claude"
+shell_pid: "33428"
+---
 # Work Package: WP04 - Remotion Worker Setup
 
 **Work Package ID**: WP04
 **Feature**: 004-visuals-video-rendering
-**Status**: planned
+**Status**: doing
 **Created**: 2026-01-08
+
+**Lane**: doing
+**History**:
+- 2026-01-09: Moved to doing lane, started implementation
 
 ---
 
